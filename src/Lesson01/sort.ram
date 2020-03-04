@@ -1,0 +1,103 @@
+;
+; For application:  https://github.com/emustudio/emuStudio/releases
+; Emulator type:    RAM
+; Command list:     https://www.emustudio.net/docuser/ram/index/#language-description
+;
+; сортировка не оптимизированная О(n^2)
+; вход: int, int[n]
+; выход: int[n]
+<input> 5 56 12 1 34 100
+
+load =10
+store 1 ; 1 - с какого регистра начинается массив
+read 2 ; 2 - сколько чисел в массиве
+add 2
+sub =2
+store 8 ; 8 - индекс последнего проверяемого элемента, 8 = 1 + 2 - =2
+load =0
+store 3 ; 3 - индекс инспектируемого элемента
+
+read_array:
+  load 2
+  jz end
+  store 4 ; 4 - итератор, 4 = 2
+  load 1
+  store 5 ; *5 - куда сохраняем, 5 = 1
+  jmp read_array_do
+  read_array_loop:
+    load 5
+    add =1
+    store 5 ; 5 = 5 + =1
+  read_array_do:
+    read *5
+    load 4
+    sub =1
+    store 4 ; 4 = 4 - =1
+    jgtz read_array_loop
+
+check_small:
+  load 2
+  sub =1
+  jgtz find_minimal
+  load 1
+  sub =1
+  store 7
+  jmp out_last
+  
+
+find_minimal:
+  load 1
+  add 3
+  store 6 ; *6 - минимальный элемент, 6 = 1 + 3
+  store 7 ; *7 - минимальный элемент, 7 = 6
+  add =1
+  store 5 ; *5 - где ищем, 5 = 6 + =1
+  load 2
+  sub 3
+  sub =1
+  store 4 ; 4 - итератор, 4 = 2 + 3 - =1
+  jmp find_minimal_do
+  find_minimal_loop:
+    load 5
+    add =1
+    store 5 ; 5 = 5 + =1
+  find_minimal_do:
+    load *5
+    sub *6
+    jgtz find_minimal_bigger
+      ; найден меньший элемент
+      load 5
+      store 6 ; 6 = 5
+    find_minimal_bigger:
+    load 4
+    sub =1
+    store 4 ; 4 = 4 - =1
+    jgtz find_minimal_loop
+  ; если найден минимальный
+  load 7
+  sub 6
+  jz out_and_iterate
+    ; поменяем элементы местами
+    load *6
+    store 4
+    load *7
+    store *6
+    load 4
+    store *7
+
+out_and_iterate:
+  write *7
+  load 3
+  add =1
+  store 3 ; 3 = 3 + =1
+  load 8
+  sub 7
+  jgtz find_minimal
+
+out_last:
+  load 7
+  add =1
+  write *0
+
+end:
+  halt

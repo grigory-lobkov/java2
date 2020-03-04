@@ -1,0 +1,44 @@
+;
+; For application:  https://github.com/emustudio/emuStudio/releases
+; Emulator type:    RAM
+; Command list:     https://www.emustudio.net/docuser/ram/index/#language-description
+;
+; умножение чисел за счет сложения
+<input> 25 10
+
+; load 
+read 1 ; множимое
+read 2 ; множитель
+load =0
+store 3 ; результат
+
+; проверка на пустые зачения
+load 1
+jz end
+load 2
+jz end
+
+; проверка, что множитель меньше
+sub 1
+jgtz loop
+  ; поменять множитель и множимое местами, чтобы уменьшить кол-во операций
+  load 1
+  store 4
+  load 2
+  store 1
+  load 4
+  store 2
+
+; основное действие
+loop:
+  load 3
+  add 1
+  store 3 ; 3 = 3 + 1
+  load 2
+  sub =1
+  store 2 ; 2 = 2 - =1
+  jgtz loop
+
+end:
+  write 3
+  halt
