@@ -1,4 +1,4 @@
-package Lesson02;
+package ru.progwards.java2.lessons.recursion;
 
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -1,4 +1,4 @@
-package Lesson01;
+package ru.progwards.java2.lessons.ram;
 
 public class Calculator {
 	public static void main(String[] args) { }
