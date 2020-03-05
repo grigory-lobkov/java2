@@ -1,0 +1,30 @@
+;
+; For application:  https://github.com/emustudio/emuStudio/releases
+; Emulator type:    RAM
+; Command list:     https://www.emustudio.net/docuser/ram/index/#language-description
+;
+; деление через вычитание (не оптимизированное)
+; вход: делимое, делитель
+; выход: частное, остаток
+<input> 25 100
+
+load =0
+read 1 ; 1 - делимое, на выходе: остаток
+read 2 ; 2 - делитель
+store 3 ; 3 - частное
+
+jmp minus
+
+bigger:
+  store 1
+  load 3
+  add =1
+  store 3
+minus:
+  load 1
+  sub 2 ; вычли
+  jgtz bigger
+
+write 3
+write 1
+halt
