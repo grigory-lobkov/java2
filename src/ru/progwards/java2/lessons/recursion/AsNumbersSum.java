@@ -5,13 +5,10 @@ public class AsNumbersSum {
     private static final String eqSign = " = ";
     private static final String plSign = "+";
 
-    // раскладывает параметр number, как всевозможные уникальные комбинации сумм натуральных чисел, например:
-    // 5 = 4+1 = 3+2 = 3+1+1 = 2+2+1 = 2+1+1+1 = 1+1+1+1+1
-    public static String asNumbersSum(int number) {
-        //return number + getVariants("", number - 1, 1, "");
-        return number + getVariants(number-1, 1, "");
-    }
-
+//    public static String asNumbersSum(int number) {
+//        return number + getVariants("", number - 1, 1, "");
+//    }
+//
 //    public static String getVariants(String beforeStr, int number, int now, String afterStr) {
 //        if (number <= 1 || now > number) return "";
 //        System.out.println("in: " + beforeStr + "," + number + "," + now + "," + afterStr);
@@ -65,9 +62,15 @@ public class AsNumbersSum {
 //        }
 //        return "";
 //    }
+//
+//    public static String getOnes(int now, String afterStr) {
+//        return now > 0 ? getOnes(now - 1, plSign + "1" + afterStr) : afterStr;
+//    }
 
-    public static String getOnes(int now, String afterStr) {
-        return now > 0 ? getOnes(now - 1, plSign + "1" + afterStr) : afterStr;
+    // раскладывает параметр number, как всевозможные уникальные комбинации сумм натуральных чисел, например:
+    // 5 = 4+1 = 3+2 = 3+1+1 = 2+2+1 = 2+1+1+1 = 1+1+1+1+1
+    public static String asNumbersSum(int number) {
+        return number + getVariants(number-1, 1, "");
     }
 
     public static String getVariants(int n, int i, String p) {  // капец какой-то! еле еле решил - часов 6 бился :( ... но решение получилось красивое в итоге! мне нравится! :)
