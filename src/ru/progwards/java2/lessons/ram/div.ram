@@ -6,11 +6,14 @@
 ; деление через вычитание (не оптимизированное)
 ; вход: делимое, делитель
 ; выход: частное, остаток
-<input> 25 100
+;
+<input> 100 0
 
-load =0
 read 1 ; 1 - делимое, на выходе: остаток
 read 2 ; 2 - делитель
+load 2
+jz end ; если делитель = 0, конец
+load =0
 store 3 ; 3 - частное
 
 jmp minus
@@ -24,7 +27,9 @@ minus:
   load 1
   sub 2 ; вычли
   jgtz bigger
+  jz bigger
 
 write 3
 write 1
-halt
+end:
+  halt
