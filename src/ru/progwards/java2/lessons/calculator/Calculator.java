@@ -41,16 +41,15 @@ public class Calculator {
     final static char signMinus = '-';
 
     public static int calculate2(String expression) { // Произвольное количество цифр +34 минуты
-        String str = expression;
         Pattern valPattern = Pattern.compile("[^0-9]");
 
-        int val = indexOf(valPattern, str);
-        if (val < 0) return Integer.valueOf(str);
+        int val = indexOf(valPattern, expression);
+        if (val < 0) return Integer.valueOf(expression);
 
-        int result = Integer.valueOf(str.substring(0, val));
+        int result = Integer.valueOf(expression.substring(0, val));
 
-        Character op = str.charAt(val);
-        String leastString = str.substring(val + 1);
+        Character op = expression.charAt(val);
+        String leastString = expression.substring(val + 1);
         val = indexOf(valPattern, leastString);
         int r2 = Integer.valueOf(val < 0 ? leastString : leastString.substring(0, val));
 
@@ -74,8 +73,196 @@ public class Calculator {
         return result;
     }
 
+    public static int bracketEnd(String expression) {
+        int i = -1;
+        int l = expression.length();
+        int b = 0;
+        while (++i < l) {
+            char c = expression.charAt(i);
+            if (c == ')') {
+                if (b == 0) return i;
+                else b--;
+            } else {
+                if (c == '(') b++;
+            }
+        }
+        throw new RuntimeException("Cannot find closing bracket in '" + expression + "'");
+    }
+    public static int makeOper(int num1, char op, int num2) {
+        switch (op) {
+            case '*': return num1*num2;
+            case '/': return num1/num2;
+            case '+': return num1+num2;
+            case '-': return num1-num2;
+        }
+        throw new RuntimeException("Operation '" + op + "' is unknown: "+num1+op+num2);
+    }
+
+    public static int calculate3(String expression) { // добавление скобок
+        System.out.println("Calcalating:"+expression);
+        int i = -1;
+        int l = expression.length();
+        int result = 0;
+        boolean isNum = false;
+        int numStart = -1;
+        int numEnd = -1;
+        char op = '+';
+        while (++i < l) {
+            char c = expression.charAt(i);
+            if (c >= '0' && c <= '9') {
+                if (!isNum) {
+                    numStart = i;
+                    isNum = true;
+                }
+                numEnd = i;
+            } else {
+                if (isNum) {
+                    result = makeOper(result, op, Integer.valueOf(expression.substring(numStart,numEnd+1)));
+                    isNum = false;
+                }
+                String leastExpr = expression.substring(i + 1);
+                switch (c) {
+                    case '+':
+                        return result + calculate3(leastExpr);
+                    case '-':
+                        return result - calculate3(leastExpr);
+                    case '*':
+                    case '/':
+                        op = c;
+                        break;
+                    case '(':
+                        int brEnd = bracketEnd(leastExpr);
+                        result = calculate3(leastExpr.substring(0, brEnd));
+                        i += brEnd+1;
+                        break;
+                    case ')':
+                        throw new RuntimeException("Unexpected '" + c + "'");
+                    default:
+                        throw new RuntimeException("Operation '" + c + "' is unknown!");
+                }
+            }
+        }
+        if (isNum) result = makeOper(result, op, Integer.valueOf(expression.substring(numStart,numEnd+1)));
+        return result;
+    }
+
+
+    private String  expression; // входной пример
+    private int     result;     // результат вычислений
+    private boolean firstPass = true; // Первый проход?
+    private int     pos;        // в каком месте строки разбираем
+    private int     len;        // общая длинна выражения
+    private enum    OPERATIONS {PLUS, MINUS, MULTIPLE, DIVIDE}; // писок операций
+
+    Calculator(String expression) {
+        System.out.println("Calculating:"+expression);
+        this.expression = expression;
+        result = 0;
+        pos = 0;
+        len = expression.length();
+    }
+    Calculator(String expression, boolean firstPass) {
+        this(expression);
+        this.firstPass = firstPass;
+    }
+    public int getResult() {
+        OPERATIONS op = OPERATIONS.PLUS;
+        OPERATIONS nextOp = null;
+        while (hasNext()) {
+            if (isOperation()) {
+                op = getOperation();
+            } else {
+                int value = getElement();
+                while (hasNext()) {
+                    nextOp = getOperation();
+                    if (nextOp == OPERATIONS.MULTIPLE || nextOp == OPERATIONS.DIVIDE) {
+                        value = makeOperation(value, nextOp, getElement());
+                    } else break;
+                }
+                result = makeOperation(result, op, value);
+                op = nextOp;
+            }
+        }
+        return result;
+    }
+    private boolean hasNext() {
+        return pos < len;
+    }
+    private boolean isOperation() {
+        return "+-*/".contains(expression.substring(pos,pos+1));
+    }
+    private OPERATIONS getOperation() {
+        char op = expression.charAt(pos++);
+        switch (op) {
+            case '+': return OPERATIONS.PLUS;
+            case '-': return OPERATIONS.MINUS;
+            case '*': return OPERATIONS.MULTIPLE;
+            case '/': return OPERATIONS.DIVIDE;
+        }
+        throw new RuntimeException("Unknown operation '"+op+"'");
+    }
+    private char getChar() {
+        return expression.charAt(pos++);
+    }
+    private boolean isBracket() {
+        return expression.charAt(pos)=='(';
+    }
+    private String getBracket() {
+        int from = ++pos;
+        int b = 0;
+        while (pos < len) {
+            char c = expression.charAt(pos++);
+            if (c == ')') {
+                if (b == 0) {
+                    return expression.substring(from, pos-1);
+                }
+                else b--;
+            } else {
+                if (c == '(') b++;
+            }
+        }
+        throw new RuntimeException("Cannot find closing bracket in '" + expression + "'");
+    }
+    private boolean isValue() {
+        return "0123456789".contains(expression.substring(pos,pos+1));
+    }
+    private int getValue() {
+        int from = pos++;
+        while (hasNext()&&isValue()) pos++;
+        return Integer.valueOf(expression.substring(from, pos));
+    }
+    private int getElement() {
+        if(isBracket()) {
+            return new Calculator(getBracket()).getResult();
+        } else if (isValue()) {
+            return getValue();
+        } else {
+            throw new RuntimeException("Unknown symbol '"+getChar()+"'");
+        }
+    }
+    private int makeOperation(int num1, OPERATIONS op, int num2) {
+        switch (op) {
+            case MULTIPLE:
+                return num1 * num2;
+            case DIVIDE:
+                return num1 / num2;
+            case PLUS:
+                return num1 + num2;
+            case MINUS:
+                return num1 - num2;
+        }
+        throw new RuntimeException("Operation '" + op + "' is unknown: " + num1 + " " + op + " " + num2);
+    }
+
+
+    public static int calculate4(String expression) { // добавление скобок
+        Calculator calculator = new Calculator(expression.replace(" ",""));
+        return calculator.getResult();
+    }
     public static void main(String[] args) {
         //System.out.println(calculate1("2+3*2+7*2"));
-        System.out.println(calculate2("11+01*2+01*005"));
+        //System.out.println(calculate2("11+01*2+01*005"));
+        //System.out.println(calculate3("11+(02*2)+(-10/005+11)"));//11+4+2+11=28
+        System.out.println(calculate4("11+1-(02*2)+(-10/005+11)"));//11+4+2+11=28
     }
 }
