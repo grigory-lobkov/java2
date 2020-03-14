@@ -277,6 +277,6 @@ public class Calculator {
         System.out.println(calculate("2+3*2+7*2")); //22
         System.out.println(calculate("11+01*2+01*005")); //18
         System.out.println(calculate("11+(02*2)+(-10/005+11)"));//11+4-2+11=24
-        System.out.println(calculate("-11+1-(02*2)-(-10/005+11)"));//-23
+        System.out.println(calculate("-11+1-(02*2)-(-10/(002-1+4)+11)"));//-23
     }
 }
