@@ -30,6 +30,10 @@ public class Calculator {
         return r;
     }
 
+
+    /*******************************************************************************************************************/
+
+
     public static int indexOf(Pattern pattern, String s) {
         Matcher matcher = pattern.matcher(s);
         return matcher.find() ? matcher.start() : -1;
@@ -72,6 +76,9 @@ public class Calculator {
             result -= calculate2(leastString);
         return result;
     }
+
+    /*******************************************************************************************************************/
+
 
     public static int bracketEnd(String expression) {
         int i = -1;
@@ -147,6 +154,13 @@ public class Calculator {
     }
 
 
+
+    /*******************************************************************************************************************/
+    /*******************************************************************************************************************/
+    /*******************************************************************************************************************/
+
+
+
     private String  expression; // входной пример
     private int     result;     // результат вычислений
     private boolean firstPass = true; // Первый проход?
@@ -155,7 +169,6 @@ public class Calculator {
     private enum    OPERATIONS {PLUS, MINUS, MULTIPLE, DIVIDE}; // писок операций
 
     Calculator(String expression) {
-        System.out.println("Calculating:"+expression);
         this.expression = expression;
         result = 0;
         pos = 0;
@@ -167,22 +180,23 @@ public class Calculator {
     }
     public int getResult() {
         OPERATIONS op = OPERATIONS.PLUS;
-        OPERATIONS nextOp = null;
-        while (hasNext()) {
+        OPERATIONS op2 = null;
+        while (hasNext()) { // цикл по сложениям и вычитаниям
             if (isOperation()) {
                 op = getOperation();
             } else {
                 int value = getElement();
-                while (hasNext()) {
-                    nextOp = getOperation();
-                    if (nextOp == OPERATIONS.MULTIPLE || nextOp == OPERATIONS.DIVIDE) {
-                        value = makeOperation(value, nextOp, getElement());
+                while (hasNext()) { // цикл по умножениям и делениям
+                    op2 = getOperation();
+                    if (op2 == OPERATIONS.MULTIPLE || op2 == OPERATIONS.DIVIDE) {
+                        value = makeOperation(value, op2, getElement());
                     } else break;
                 }
                 result = makeOperation(result, op, value);
-                op = nextOp;
+                op = op2;
             }
         }
+        //System.out.println(expression+"="+result);
         return result;
     }
     private boolean hasNext() {
@@ -254,15 +268,15 @@ public class Calculator {
         throw new RuntimeException("Operation '" + op + "' is unknown: " + num1 + " " + op + " " + num2);
     }
 
-
-    public static int calculate4(String expression) { // добавление скобок
+    public static int calculate(String expression) { // добавление скобок, функциональная декомпозиция
         Calculator calculator = new Calculator(expression.replace(" ",""));
         return calculator.getResult();
     }
+
     public static void main(String[] args) {
-        //System.out.println(calculate1("2+3*2+7*2"));
-        //System.out.println(calculate2("11+01*2+01*005"));
-        //System.out.println(calculate3("11+(02*2)+(-10/005+11)"));//11+4+2+11=28
-        System.out.println(calculate4("11+1-(02*2)+(-10/005+11)"));//11+4+2+11=28
+        System.out.println(calculate("2+3*2+7*2")); //22
+        System.out.println(calculate("11+01*2+01*005")); //18
+        System.out.println(calculate("11+(02*2)+(-10/005+11)"));//11+4-2+11=24
+        System.out.println(calculate("-11+1-(02*2)-(-10/005+11)"));//-23
     }
 }
