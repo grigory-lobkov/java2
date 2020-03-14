@@ -75,13 +75,13 @@ public class AsNumbersSum {
 
     public static String getVariants(int n, int i, String p) {  // капец какой-то! еле еле решил - часов 6 бился :( ... но решение получилось красивое в итоге! мне нравится! :)
         return
-                (n <= 0 ? "" :
-                        (i > n
-                                ? getVariants(n, i - n, p + n + plSign)
-                                : eqSign + p + n + plSign + i
-                                + getVariants(i - 1, 1, p + n + plSign)
+                (n <= 0 ? "" :                                                   // выход из рекурсии
+                        (i > n                                                     // когда второе слагаемое больше
+                                ? getVariants(n, i - n, p + n + plSign)        // выводим все варианты второго слагаемого
+                                : eqSign + p + n + plSign + i                        // выводим текущий вариант
+                                + getVariants(i - 1, 1, p + n + plSign)       // и все его подварианты
                         )
-                                + getVariants(n - 1, i + 1, p)
+                                + getVariants(n - 1, i + 1, p)               // добавляем оставшиеся варианты, увеличив второе слагаемое
                 );
     }
 
@@ -110,3 +110,4 @@ public class AsNumbersSum {
     }
 
 }
+
