@@ -22,7 +22,7 @@ public class DynamicArray<T> {
 
     DynamicArray(int size, int incPercent) {
         this.size = size;
-        this.incPercent = incPercent;
+        this.incPercent = incPercent > 1 ? incPercent : 1;
         init();
     }
 
@@ -32,7 +32,8 @@ public class DynamicArray<T> {
     }
 
     private void increment() {
-        int newSize = size + size * 100 / incPercent;
+        int newSize = size + size * incPercent / 100;
+        if (newSize==size) newSize++;
         T[] newStorage = (T[]) new Object[newSize];
         System.arraycopy(storage, 0, newStorage, 0, size);
         storage = newStorage;
