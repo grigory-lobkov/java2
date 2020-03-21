@@ -1,14 +1,14 @@
 package ru.progwards.java2.lessons.tests.test.calculator;
 
-        import org.junit.Test;
-        import org.junit.runner.RunWith;
-        import org.junit.runners.Parameterized;
-        import ru.progwards.java2.lessons.tests.calc.Calculator;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import ru.progwards.java2.lessons.tests.calc.Calculator;
 
-        import java.util.Arrays;
-        import java.util.Collection;
+import java.util.Arrays;
+import java.util.Collection;
 
-        import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(value = Parameterized.class)
 public class CalculatorCalculatePE {
