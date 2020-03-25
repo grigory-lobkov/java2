@@ -54,20 +54,21 @@ public class BiDirList<T> implements Iterable<T> {
     // удалить
     public void remove(T item) {
         Node<T> node = firstNode;
-        while (node != null && node.item != item) {
-            node = node.next;
-        }
-        if (node.item == item) { // элемент найден
-            if (node.prev == null)
-                firstNode = node.next;
-            else
-                node.prev.next = node.next;
+        while (node != null) {
+            if (node.item == item) {
+                // элемент найден
+                if (node.prev == null)
+                    firstNode = node.next;
+                else
+                    node.prev.next = node.next;
 
-            if (node.next == null)
-                lastNode = node.prev;
-            else
-                node.next.prev = node.prev;
-            size--;
+                if (node.next == null)
+                    lastNode = node.prev;
+                else
+                    node.next.prev = node.prev;
+                size--;
+            }
+            node = node.next;
         }
     }
 
@@ -91,14 +92,18 @@ public class BiDirList<T> implements Iterable<T> {
     // конструктор из списка
     public static <T> BiDirList<T> from(T[] array) {
         BiDirList<T> result = new BiDirList<T>();
-        for (T item : array) result.addLast(item);
+        for (T item : array) {
+            result.addLast(item);
+        }
         return result;
     }
 
     // конструктор из массива
     public static <T> BiDirList<T> of(T... array) {
         BiDirList<T> list = new BiDirList<T>();
-        for (T item : array) list.addLast(item);
+        for (T item : array) {
+            list.addLast(item);
+        }
         return list;
     }
 

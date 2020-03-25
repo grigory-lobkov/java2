@@ -6,9 +6,16 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
+
+// Интерфейс для ключей таблицы
+
 interface HashValue {
     int getHash();
 }
+
+
+// Пример реализации ключа
+
 class IntValue implements HashValue {
     private final int v;
     public IntValue(int value) {
@@ -31,15 +38,25 @@ class IntValue implements HashValue {
     }
 }
 
+
+// Лямбда для задания алгоритма поиска позиции хранения
+
 interface DoubleHashFunction {
+
     // результат должен быть в интервале [0, size-1]
+    // hash - рассчитанный хэш элемента
+    // size - размер хранилища на текущий момент
+    // coll - номер коллизии (начинается от нуля)
     int apply(int hash, int size, int coll);
 }
 
 
+// Реализация таблицы с двойным хэшированием
+
 public class DoubleHashTable<K extends HashValue,V>
         extends Dictionary<K,V> {
 
+    // вспомогательный класс генерации простых чисел для определения размера хранилища
     static class Prime {
         static List<Integer> list;
         private static int lastChecked;
@@ -81,6 +98,7 @@ public class DoubleHashTable<K extends HashValue,V>
         }
     }
 
+    // запись для хранения одного элемента таблицы
     static class Entry<K extends HashValue, V> {
 
         private V value;
@@ -107,20 +125,6 @@ public class DoubleHashTable<K extends HashValue,V>
 Для числовых значение взять хэш 2 функции - деление и умножение
 
 Для строковых - выбрать что-то, из представленных в лекции
-
-Методы
-
-1.1 public void add(K key, V value) - добавить пару ключ-значение
-
-1.2 public V get(K key) - получить значение по ключу
-
-1.3 public void remove(K key) - удалить элемент по ключу
-
-1.4 public void change(K key1, Key key2) - изменить значение ключа у элемента с key1 на key2
-
-1.5 public int size() - получить количество элементов
-
-1.6 public Iterator<DoubleHashTable<K,V>> getIterator()
      */
 
     private Object[] storage;      // хранилище
@@ -149,15 +153,19 @@ public class DoubleHashTable<K extends HashValue,V>
         this.incPercent = incPercent;
         initialize();
     }
+
     private void initialize() {
         storageSize = Prime.getHigher(storageSize);
         storage = new Object[storageSize];
         deleted = new boolean[storageSize];
         size = 0;
         threshold = storageSize * collPercent / 100;
-        f1 = (k, s, c) -> {
-            double d = 0.6180339887d*((k+c) & 0x7FFFFFFF); // золотое сечение =(sqrt(5)-1)/2
-            int rslt=(int)((d-Math.floor(d))*s);
+        f1 = (hash, size, collis) -> {
+            // тут в неявном виде делаем двойное хэширование: для сокращения операций с плавающей точкой
+            // объединил функцию по хэш и по коллизиям в одну операцию
+            // В пользовательской лямбде может быть как угодно. Это просто дефолтная.
+            double d = 0.6180339887d*((hash+collis*hash) & 0x7FFFFFFF); // золотое сечение =(sqrt(5)-1)/2
+            int rslt=(int)((d-Math.floor(d))*size);
             //System.out.println("k="+k+" s="+s+" c="+c+"  result="+rslt);
             return rslt;
         };
@@ -167,6 +175,7 @@ public class DoubleHashTable<K extends HashValue,V>
         else throw new IllegalStateException("Table is not empty");
     }
 
+    // получить количество элементов
     public int size() { // from Dictionary<K,V>
         return size;
     }
@@ -204,6 +213,7 @@ public class DoubleHashTable<K extends HashValue,V>
         threshold = table.threshold;
     }
 
+    // добавить пару ключ-значение
     public V put(K key, V value) { // from Dictionary<K,V>
         if (value == null) {
             throw new NullPointerException();
@@ -231,10 +241,12 @@ public class DoubleHashTable<K extends HashValue,V>
         }
     }
 
+    // добавить пару ключ-значение
     public V add(K key, V value) { // по задаче имя д.б. такое
         return put(key, value);
     }
 
+    // получить значение по ключу
     public V get(Object key) { // from Dictionary<K,V>
         int hash = ((K)key).getHash();
         int collis = 0;
@@ -252,6 +264,7 @@ public class DoubleHashTable<K extends HashValue,V>
         }
     }
 
+    // удалить элемент по ключу
     public V remove(Object key) {
         int hash = ((K)key).getHash();
         int collis = 0;
@@ -262,7 +275,10 @@ public class DoubleHashTable<K extends HashValue,V>
             int index = f1.apply(hash, storageSize, collis++);
             Entry<K, V> e = (Entry<K, V>)storage[index];
             if(e==null) {
-                if(!deleted[index]) return null;
+                if(!deleted[index]) {
+                    // элемент не найден и не удален, выходим, или можно вернуть исключение
+                    return null;
+                }
             } else if ((e.hash == hash) && e.key.equals(key)) {
                 storage[index] = null;
                 deleted[index] = true;
@@ -272,6 +288,7 @@ public class DoubleHashTable<K extends HashValue,V>
         }
     }
 
+    // изменить значение ключа у элемента с key1 на key2
     public V change(K key1, K key2) {
         V value = remove(key1);
         put(key2, value);
@@ -371,7 +388,11 @@ public class DoubleHashTable<K extends HashValue,V>
         System.out.println(Prime.list);*/
         DoubleHashTable<IntValue, String> table = new DoubleHashTable();
         //table.setCalculateFunction((h,s,c)->c);
-        for(int i=200; i<350; i++) {
+        for(int i=200; i<405; i++) {
+            //211 elements -> 21 collisions limit
+            //184 for k+c
+            //200 for k+c*k*c
+            //207 for k+c*k
             table.put(IntValue.of(i), "value "+i);
         }
         System.out.println("StorageSize="+table.storageSize);
