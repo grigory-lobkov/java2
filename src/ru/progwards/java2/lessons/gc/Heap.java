@@ -1,7 +1,5 @@
 package ru.progwards.java2.lessons.gc;
 
-import java.util.BitSet;
-import java.util.HashSet;
 import java.util.List;
 
 /*

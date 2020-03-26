@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import ru.progwards.java2.lessons.tests.app.Store;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class StoreServiceImpl_delete_mock {
 
-    @Mock
+    //@Mock
     Store store;
     @Mock
     Account account;
@@ -56,9 +57,10 @@ public class StoreServiceImpl_delete_mock {
 
     @Test//(expected = RuntimeException.class)
     public void delete_exception3() {
-        service = mock(StoreServiceImpl.class);
+        Store store = Mockito.mock(Store.class);
+        //service = Mockito.mock(StoreServiceImpl.class);
         String id = "d32l984rfq3gWERG";
-        when(store.getStore().get(id)).thenReturn(null);
+        Mockito.when(store.getStore()).thenReturn(null);
 
         service.delete(id);
     }
