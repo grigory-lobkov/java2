@@ -128,11 +128,11 @@ public class DoubleHashTableChained<K extends HashValue,V>
     }
 
 
-    public int size() { // from Dictionary<K,V>
+    public int size() { // from IntDictionary<K,V>
         return size;
     }
 
-    public boolean isEmpty() { // from Dictionary<K,V>
+    public boolean isEmpty() { // from IntDictionary<K,V>
         return size == 0;
     }
 
@@ -172,7 +172,7 @@ public class DoubleHashTableChained<K extends HashValue,V>
         storage[index] = new Entry<K, V>(hash, key, value, e);
     }
 
-    public synchronized V put(K key, V value) { // from Dictionary<K,V>
+    public synchronized V put(K key, V value) { // from IntDictionary<K,V>
         Entry<K,V>[] tab = storage;
         if (value == null) {
             throw new NullPointerException();
@@ -199,7 +199,7 @@ public class DoubleHashTableChained<K extends HashValue,V>
         return put(key, value);
     }
 
-    public synchronized V get(Object key) { // from Dictionary<K,V>
+    public synchronized V get(Object key) { // from IntDictionary<K,V>
         Entry<K,V>[] tab = storage;
         int hash = key.hashCode();
         int index = (hash & 0x7FFFFFFF) % storageSize;

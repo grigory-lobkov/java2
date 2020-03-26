@@ -176,11 +176,11 @@ public class DoubleHashTable<K extends HashValue,V>
     }
 
     // получить количество элементов
-    public int size() { // from Dictionary<K,V>
+    public int size() { // from IntDictionary<K,V>
         return size;
     }
 
-    public boolean isEmpty() { // from Dictionary<K,V>
+    public boolean isEmpty() { // from IntDictionary<K,V>
         return size == 0;
     }
 
@@ -214,7 +214,7 @@ public class DoubleHashTable<K extends HashValue,V>
     }
 
     // добавить пару ключ-значение
-    public V put(K key, V value) { // from Dictionary<K,V>
+    public V put(K key, V value) { // from IntDictionary<K,V>
         if (value == null) {
             throw new NullPointerException();
         }
@@ -247,7 +247,7 @@ public class DoubleHashTable<K extends HashValue,V>
     }
 
     // получить значение по ключу
-    public V get(Object key) { // from Dictionary<K,V>
+    public V get(Object key) { // from IntDictionary<K,V>
         int hash = ((K)key).getHash();
         int collis = 0;
         while(true) {
