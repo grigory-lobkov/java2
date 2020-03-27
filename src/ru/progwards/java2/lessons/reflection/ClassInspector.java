@@ -63,6 +63,7 @@ class Person {
     // вернуть строку с модификаторами объекта
     private static String getModifiers(int mods, boolean isClass) {
         return (Modifier.isPublic(mods) ? "public " : "") +
+                (Modifier.isPrivate(mods) ? "private " : "") +
                 (Modifier.isAbstract(mods) ? "abstract " : "") +
                 (Modifier.isFinal(mods) ? "final " : "") +
                 (Modifier.isStatic(mods) ? "static " : "") +
@@ -115,7 +116,8 @@ class Person {
     // тест
     public static void main(String[] args) throws Exception {
         //inspect("java.lang.String");
-        inspect("ru.progwards.java2.lessons.reflection.Employee");
+        //inspect("ru.progwards.java2.lessons.reflection.Employee");
+        inspect("ru.progwards.java2.lessons.reflection.Person");
     }
 
 }
