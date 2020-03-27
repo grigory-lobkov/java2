@@ -183,12 +183,12 @@ public void setAge(int age)
         return "set"+name.substring(0,1).toUpperCase()+name.substring(1);
     }
 
-    // генерация отсутсвующего метода геттера
+    // генерация сигнатуры геттера
     private String getGetterFunc(Property p) {
         return "public "+p.type.getSimpleName()+" "+p.getterName+"()";
     }
 
-    // генерация отсутсвующего метода сеттера
+    // генерация сигнатуры сеттера
     private String getSetterFunc(Property p) {
         return "public void "+p.setterName+"("+p.type.getSimpleName()+" "+p.name+")";
     }

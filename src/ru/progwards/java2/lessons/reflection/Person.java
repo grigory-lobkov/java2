@@ -5,14 +5,24 @@ public class Person {
     private int age;
     private boolean sex;
 
+    public Person() {
+        name = "no name";
+    }
+
+    private Person(String name) {
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    private void setName(String name) {
         this.name = name;
     }
+
     public boolean getSex() {
         return sex;
     }
+
 }
