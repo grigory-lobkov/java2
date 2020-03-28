@@ -19,9 +19,12 @@ public class Heap {
 
     public byte[] bytes;          // куча
     public final int maxHeapSize; // максимальный размер кучи
+
     private int emptyPos;         // указатель на свободное пространство
     private IntDictionary<List<Integer>> freeZones; // индекс - размер свободной зоны, значение - список позиций начала
-    private IntDictionary<Integer> oSizeInPos; // индекс - позиция, значение - размер объекта
+
+    private IntDictionary<Integer> oSizeInPos;  // индекс - позиция, значение - размер объекта
+    private BiHeap2int oFree;                 // свободные блоки в памяти (сравнение - по размеру блока)
 
     Heap(){
         this.maxHeapSize = 64;
@@ -49,7 +52,7 @@ public class Heap {
 
     // "удаляет", т.е. помечает как свободный блок памяти по "указателю". Проверять валидность указателя - т.е.
     // то, что он соответствует началу ранее выделенного блока, а не его середине, или вообще, уже свободному.
-    public void free(int size) {
+    public void free(int index, int size) {
 
     }
 

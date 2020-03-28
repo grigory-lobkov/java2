@@ -67,7 +67,7 @@ public class StoreServiceImpl_delete_mock {
 
 /*    @Test
     public void delete_testAccount() {
-        service.delete(testKey);
+        service.remove(testKey);
         Assert.assertTrue("test account is still exists", !exists);
     }*/
 
