@@ -44,10 +44,13 @@ public class Lesson7 {
     public static void main(String[] args) {
         Person p = new Person();
         System.out.println(p.getName());
+
         new Lesson7().setName(p, "Alex1");
         System.out.println(p.getName());
+
         new Lesson7().callSetName(p, "Alex2");
         System.out.println(p.getName());
+
         Person p3 = new Lesson7().callConstructor("Alex3");
                 System.out.println(p3.getName());
     }
