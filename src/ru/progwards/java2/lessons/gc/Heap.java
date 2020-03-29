@@ -1,6 +1,6 @@
 package ru.progwards.java2.lessons.gc;
 
-import java.util.List;
+import java.util.NoSuchElementException;
 
 /*
 Имеется массив байт, который будет представлять из себя кучу - heap.
@@ -19,47 +19,96 @@ public class Heap {
 
     public byte[] bytes;          // куча
     public final int maxHeapSize; // максимальный размер кучи
+    public final int initObjectPercent = 50; // сотые доли процента для расчета примерного количества объектов от размера кучи
 
-    private int emptyPos;         // указатель на свободное пространство
-    private IntDictionary<List<Integer>> freeZones; // индекс - размер свободной зоны, значение - список позиций начала
+    private int initObjCount;                  // базовый размер служебных таблиц, расчет при инициализации
+    private IntDictionary<Integer> sizeInPos;  // индекс - позиция, значение - размер объекта
+    private BiHeap2int freeSpace;              // свободные блоки в памяти (сравнение - по размеру блока)
 
-    private IntDictionary<Integer> oSizeInPos;  // индекс - позиция, значение - размер объекта
-    private BiHeap2int oFree;                 // свободные блоки в памяти (сравнение - по размеру блока)
-
-    Heap(){
+    Heap() {
         this.maxHeapSize = 64;
         init();
     }
 
-    Heap(int maxHeapSize){
+    Heap(int maxHeapSize) {
         this.maxHeapSize = maxHeapSize;
         init();
     }
 
     private void init() {
         bytes = new byte[maxHeapSize];
-        emptyPos = 0;
-        freeZones = new IntHashTableChained<List<Integer>>();
-        oSizeInPos = new IntHashTableChained<Integer>();
+        int initObjCount = maxHeapSize > 10_000_000 ? maxHeapSize / 10_000 * initObjectPercent : maxHeapSize * initObjectPercent / 10_000;
+        if (initObjCount < 10) initObjCount = 10;
+        freeSpace = new BiHeap2int(initObjCount);
+        freeSpace.insert(maxHeapSize, 0); // добавим всё пространство как свободное, начиная с адреса 0
+        sizeInPos = new IntHashTableChained<Integer>(initObjCount / 4);
     }
 
     // "размещает", т.е. помечает как занятый блок памяти с количеством ячеек массива heap равным size.
     // Соответственно это должен быть непрерывный блок (последовательность ячеек), которые на момент
     // выделения свободны. Возвращает "указатель" - индекс первой ячейки в массиве, размещенного блока.
-    public int malloc(int size) {
-        return emptyPos;
+    public int malloc(int size) throws OutOfMemoryException {
+        int freeZoneIdx;
+        try {
+            freeZoneIdx = freeSpace.findMinValItemIdx(size);
+        } catch (NoSuchElementException e1) {
+            defrag(); // попробуем провести дефраг свободных областей
+            try {
+                freeZoneIdx = freeSpace.findMinValItemIdx(size);
+            } catch (NoSuchElementException e2) {
+                compact(); // попробуем провести компакт занятых областей
+                try {
+                    freeZoneIdx = freeSpace.findMinValItemIdx(size);
+                } catch (NoSuchElementException e3) {
+                    throw new OutOfMemoryException();
+                }
+            }
+        }
+        int s = freeSpace.getVal(freeZoneIdx);
+        int pos = freeSpace.getValData(freeZoneIdx);
+        if(s>size) {
+            freeSpace.update(freeZoneIdx, s-size, pos+size);
+        } else if(s==pos) {
+            freeSpace.delete(freeZoneIdx);
+        }
+        sizeInPos.put(pos, size);
+        return pos;
     }
 
     // "удаляет", т.е. помечает как свободный блок памяти по "указателю". Проверять валидность указателя - т.е.
     // то, что он соответствует началу ранее выделенного блока, а не его середине, или вообще, уже свободному.
-    public void free(int index, int size) {
-
+    public void free(int index, int size) throws InvalidPointerException {
+        Integer s = sizeInPos.get(index);
+        if(s==null || s!=size) throw new InvalidPointerException();
+        sizeInPos.remove(index);
+        freeSpace.insert(size, index);
     }
 
     // осуществляет дефрагментацию кучи - ищет смежные свободные блоки, границы которых
     // соприкасаются и которые можно слить в один.
-    public void defrag() {
+    public void defrag() throws OutOfMemoryException {
+        int size = freeSpace.datas.size;
+        if(size==0) throw new OutOfMemoryException();
+        int[] poses = freeSpace.datas.nums;
+        int[] sizes = freeSpace.items.nums;
+        BiHeap2int fs = new BiHeap2int(initObjCount);
 
+        int from = poses[0];
+        int to = from + sizes[0] + 1;
+
+        for(int i=1; i< size; i++) {
+            int p = poses[i];
+            if(p==to) {
+                to += sizes[i];
+            } else {
+                fs.insert(from, to-from - 1);
+                from = p;
+                to = from + sizes[i] + 1;
+            }
+        }
+
+        fs.insert(from, to-from);
+        this.freeSpace = fs;
     }
 
     // компактизация кучи - перенос всех занятых блоков в начало хипа, с копированием самих данных - элементов
@@ -72,7 +121,7 @@ public class Heap {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(bytes.length);
-        for (byte b:bytes) {
+        for (byte b : bytes) {
             sb.append(b);
         }
         return "Heap{" +

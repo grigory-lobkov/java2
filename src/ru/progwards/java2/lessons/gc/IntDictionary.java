@@ -4,6 +4,9 @@ import java.util.Enumeration;
 
 public abstract
 class IntDictionary<V> {
+
+    // интерфейс для хэш таблиц с примитивом int в качестве индекса
+
     /**
      * Sole constructor.  (For invocation by subclass constructors, typically
      * implicit.)

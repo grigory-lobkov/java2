@@ -89,7 +89,7 @@ public class DoubleHashTable<K extends HashValue,V>
                 found = true;
                 for (int i : list) {
                     if (num % i == 0) {
-                        found = i==num;
+                        found = i == num;
                         break;
                     }
                 }
@@ -164,14 +164,15 @@ public class DoubleHashTable<K extends HashValue,V>
             // тут в неявном виде делаем двойное хэширование: для сокращения операций с плавающей точкой
             // объединил функцию по хэш и по коллизиям в одну операцию
             // В пользовательской лямбде может быть как угодно. Это просто дефолтная.
-            double d = 0.6180339887d*((hash+collis*hash) & 0x7FFFFFFF); // золотое сечение =(sqrt(5)-1)/2
-            int rslt=(int)((d-Math.floor(d))*size);
+            double d = 0.6180339887d * ((hash + collis * hash) & 0x7FFFFFFF); // золотое сечение =(sqrt(5)-1)/2
+            int rslt = (int) ((d - Math.floor(d)) * size);
             //System.out.println("k="+k+" s="+s+" c="+c+"  result="+rslt);
             return rslt;
         };
     }
+
     public void setCalculateFunction(DoubleHashFunction f) {
-        if(size==0) f1 = f;
+        if (size == 0) f1 = f;
         else throw new IllegalStateException("Table is not empty");
     }
 
@@ -196,13 +197,14 @@ public class DoubleHashTable<K extends HashValue,V>
         storageSize = storageSize + storageSize * incPercent / 100;
         rehash();
     }
+
     protected void rehash() {
         DoubleHashTable table = new DoubleHashTable(storageSize, incPercent);
         table.setCalculateFunction(f1);
 
         for (int i = storage.length; i-- > 0; ) {
-            Entry<K, V> e = (Entry<K, V>)storage[i];
-            if(e != null) {
+            Entry<K, V> e = (Entry<K, V>) storage[i];
+            if (e != null) {
                 table.put(e.key, e.value);
             }
         }
@@ -220,19 +222,19 @@ public class DoubleHashTable<K extends HashValue,V>
         }
         int hash = key.getHash();
         int collis = 0;
-        while(true) {
+        while (true) {
             if (collis > threshold) {
                 rehashWithIncrement();
                 collis = 0;
             }
             int index = f1.apply(hash, storageSize, collis++);
-            Entry<K, V> e = (Entry<K, V>)storage[index];
+            Entry<K, V> e = (Entry<K, V>) storage[index];
             if (e == null) {
-                storage[index] = new Entry<>(hash,key,value);
+                storage[index] = new Entry<>(hash, key, value);
                 deleted[index] = false;
                 size++;
                 return null;
-            } else if((e.hash == hash) && e.key.equals(key)) {
+            } else if ((e.hash == hash) && e.key.equals(key)) {
                 V oldValue = e.value;
                 e.value = value;
                 size++;
@@ -248,16 +250,16 @@ public class DoubleHashTable<K extends HashValue,V>
 
     // получить значение по ключу
     public V get(Object key) { // from IntDictionary<K,V>
-        int hash = ((K)key).getHash();
+        int hash = ((K) key).getHash();
         int collis = 0;
-        while(true) {
+        while (true) {
             if (collis > threshold) {
                 return null;
             }
             int index = f1.apply(hash, storageSize, collis++);
-            Entry<K, V> e = (Entry<K, V>)storage[index];
-            if(e==null) {
-                if(!deleted[index]) return null;
+            Entry<K, V> e = (Entry<K, V>) storage[index];
+            if (e == null) {
+                if (!deleted[index]) return null;
             } else if ((e.hash == hash) && e.key.equals(key)) {
                 return e.value;
             }
@@ -266,16 +268,16 @@ public class DoubleHashTable<K extends HashValue,V>
 
     // удалить элемент по ключу
     public V remove(Object key) {
-        int hash = ((K)key).getHash();
+        int hash = ((K) key).getHash();
         int collis = 0;
-        while(true) {
+        while (true) {
             if (collis > threshold) {
                 return null;
             }
             int index = f1.apply(hash, storageSize, collis++);
-            Entry<K, V> e = (Entry<K, V>)storage[index];
-            if(e==null) {
-                if(!deleted[index]) {
+            Entry<K, V> e = (Entry<K, V>) storage[index];
+            if (e == null) {
+                if (!deleted[index]) {
                     // элемент не найден и не удален, выходим, или можно вернуть исключение
                     return null;
                 }
@@ -310,7 +312,8 @@ public class DoubleHashTable<K extends HashValue,V>
             return new Enumerator<>(type, true);
         }
     }
-    public Iterator<Entry<K,V>> getIterator() {
+
+    public Iterator<Entry<K, V>> getIterator() {
         return getIterator(ENTRIES);
     }
 
@@ -353,7 +356,7 @@ public class DoubleHashTable<K extends HashValue,V>
 
         public T nextElement() {
             for (int i = storageIndex + 1; i < storageSize; i++) {
-                Entry<?, ?> e = (Entry<?, ?>)table[i];
+                Entry<?, ?> e = (Entry<?, ?>) table[i];
                 if (e != null) {
                     storageIndex = i;
                     count++;
@@ -386,16 +389,61 @@ public class DoubleHashTable<K extends HashValue,V>
         System.out.println((System.nanoTime()-start)/1000);//1310751-18x
         System.out.println("[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199]");
         System.out.println(Prime.list);*/
+
         DoubleHashTable<IntValue, String> table = new DoubleHashTable();
+
+        table.setCalculateFunction((k, s, c) -> {
+            double d = 0.6180339887d * ((k + c) & 0x7FFFFFFF); // золотое сечение =(sqrt(5)-1)/2
+            int rslt = (int) ((d - Math.floor(d)) * s);
+            //System.out.println("k="+k+" s="+s+" c="+c+"  result="+rslt);
+            return rslt;
+        });
+
+        table.setCalculateFunction((k, s, c) -> {
+            double t1 = 0.6180339887d * (k & 0x7FFFFFFF); // золотое сечение =(sqrt(5)-1)/2
+            int f1 = (int) ((t1 - Math.floor(t1)) * s);
+            int f2 = c * c;
+            int rslt = (f1 + f2) % s;
+            //System.out.println("k="+k+" s="+s+" c="+c+"  result="+rslt);
+            return rslt;
+        });
+
+        // https://neerc.ifmo.ru/wiki/index.php?title=%D0%A0%D0%B0%D0%B7%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D0%B5_%D0%BA%D0%BE%D0%BB%D0%BB%D0%B8%D0%B7%D0%B8%D0%B9#.D0.9F.D1.80.D0.B8.D0.BD.D1.86.D0.B8.D0.BF_.D0.B4.D0.B2.D0.BE.D0.B9.D0.BD.D0.BE.D0.B3.D0.BE_.D1.85.D0.B5.D1.88.D0.B8.D1.80.D0.BE.D0.B2.D0.B0.D0.BD.D0.B8.D1.8F
+        table.setCalculateFunction((k, m, c) -> {
+            // При двойном хешировании используются две независимые хеш-функции h1(k) и h2(k).
+            // Пусть k — это наш ключ, m — размер нашей таблицы, n mod m — остаток от деления n на m,
+            // тогда сначала исследуется ячейка с адресом h1(k), если она уже занята, то рассматривается
+            // (h1(k)+h2(k))mod m, затем (h1(k)+2⋅h2(k))mod m и так далее.
+            // В общем случае идёт проверка последовательности ячеек (h1(k)+i⋅h2(k))modm где i=(0,1,...,m−1)
+            double tmp = 0.6180339887d * (k & 0x7FFFFFFF); // золотое сечение =(sqrt(5)-1)/2
+            int h1 = (int) ((tmp - Math.floor(tmp)) * m);
+            int h2 = k * k;
+            int rslt = (h1 + c * h2) % m;
+            //System.out.println("k="+k+" s="+s+" c="+c+"  result="+rslt);
+            return rslt;
+        });
+
+        Function<Integer, Integer> f1 = x -> x * x;
+        Function<Integer, Integer> f2 = x -> (int)(618.0339887d*x);
+
+        table.setCalculateFunction((k, m, c) -> {
+            int r1 = f1.apply(k);
+            int r2 = f2.apply(k);
+            int rslt = (r1 + c * r2) % m;
+            //System.out.println("k="+k+" s="+s+" c="+c+"  result="+rslt);
+            return rslt;
+        });
+
         //table.setCalculateFunction((h,s,c)->c);
-        for(int i=200; i<405; i++) {
+        for (int i = 200; i < 388; i++) {
             //211 elements -> 21 collisions limit
             //184 for k+c
             //200 for k+c*k*c
             //207 for k+c*k
-            table.put(IntValue.of(i), "value "+i);
+            table.put(IntValue.of(i), "value " + i);
         }
-        System.out.println("StorageSize="+table.storageSize);
+        System.out.println("StorageSize=" + table.storageSize);
+
         /*Iterator<Entry<IntValue, String>> i = table.getIterator();
         while (i.hasNext()) {
             Entry<IntValue, String> e = i.next();

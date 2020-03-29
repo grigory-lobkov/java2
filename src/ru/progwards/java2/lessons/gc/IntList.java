@@ -1,12 +1,13 @@
 package ru.progwards.java2.lessons.gc;
 
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 public class IntList {
 
-    private int[] nums;
-    private int size;
+    // Список int - работает аналогично ArrayList, только хранит не объекты, а примитив int
+
+    protected int[] nums;
+    protected int size;
     private int incPercent = 50; // процент приращения при переполнении
 
     IntList(int size) {
@@ -56,6 +57,12 @@ public class IntList {
     // устанавливает элемент по индексу pos
     public void set(int pos, int item) {
         nums[pos] = item;
+    }
+    // меняет два элемента местами
+    public void swap(int pos1, int pos2) {
+        int t = nums[pos1];
+        nums[pos1] = nums[pos2];
+        nums[pos2] = t;
     }
 
     public String toString() {

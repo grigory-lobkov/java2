@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Prime {
+
+    // класс для возврата простых чисел
+
     static List<Integer> list;
     private static int lastChecked;
 

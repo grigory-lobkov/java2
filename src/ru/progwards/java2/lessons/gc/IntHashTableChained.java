@@ -1,14 +1,13 @@
 package ru.progwards.java2.lessons.gc;
 
-import ru.progwards.java2.lessons.basetypes.DoubleHashTable;
-
 import java.util.*;
-
-// реализация Hashtable<int, V>
 
 public class IntHashTableChained<V> extends IntDictionary<V> {
 
-    //Map<Integer, V> t = new Hashtable<Integer, V>();
+    // Хэш таблица с индексом примитива int
+    // реализация Hashtable<int, V>
+    // количество элементов хранилища - всегда простое число
+
     private static class Entry<V> {
 
         private V value;
@@ -25,7 +24,7 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
     private transient Entry<V>[] storage; // хранилище
     private int storageSize;       // размер хранилища
     private int incPercent;        // на сколько процентов увеличивать при переполнении
-    private int collPercent = 1;   // допустимый процент коллизий
+    private int collPercent = 2;   // допустимый процент коллизий
     private int size;              // количество элементов в таблице
     private int threshold;         // при каком количестве коллизий увеличивать хранилище
 

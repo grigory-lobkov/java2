@@ -1,23 +1,25 @@
 package ru.progwards.java2.lessons.gc;
 
-import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 public class BiHeap2int {
 
+    // Бинарная куча, содержащая за элементами данные
+    // в верхушке - максимальный элемент
+
     //private List<int> items; // список элементов
-    private IntList items; // список элементов
-    private IntList data; // список данных
+    protected IntList items; // список элементов
+    protected IntList datas; // список данных
 
     // конструктор
     public BiHeap2int(int initSize) {
         items = new IntList(initSize);
-        data = new IntList(initSize);
+        datas = new IntList(initSize);
     }
 
-    // восходящее восстановление свойства кучи
-    private void shiftUp() {
-        int pos = items.size() - 1;
+    // восходящее восстановление свойства кучи от индекса
+    private void shiftUp(int startIdx) {
+        int pos = startIdx;
         while (pos > 0) {
             int curr = (pos - 1) / 2;
             int iPos = items.get(pos);
@@ -25,15 +27,16 @@ public class BiHeap2int {
             if (iPos>iCurr) {
                 items.set(pos, iCurr);
                 items.set(curr, iPos);
+                datas.swap(pos, curr);
                 pos = curr;
             } else break;
         }
     }
 
-    // нисходящее восстановление свойства кучи
-    private void shiftDown() {
-        int curr = 0;
-        int s = items.size();
+    // нисходящее восстановление свойства кучи от индекса
+    private void shiftDown(int startIdx) {
+        int curr = startIdx;
+        int s = items.size;
         int leftChild = 2 * curr + 1;
         while (leftChild < s) {
             int max = leftChild;
@@ -48,6 +51,7 @@ public class BiHeap2int {
             if (iCurr<iMax) {
                 items.set(curr, iMax);
                 items.set(max, iCurr);
+                datas.swap(max, curr);
                 curr = max;
                 leftChild = 2 * curr + 1;
             } else break;
@@ -55,25 +59,42 @@ public class BiHeap2int {
     }
 
     // добавление элемента в кучу
-    public void insert(int item) {
+    public void insert(int item, int data) {
         items.add(item);
-        shiftUp();
+        datas.add(data);
+        shiftUp(items.size - 1);
     }
 
-    // удаление первой вершины
-    public int delete() throws NoSuchElementException {
-        int s = items.size();
-        if (s == 0) throw new NoSuchElementException();
-        if (s == 1) return items.remove(0);
-        int result = items.get(0);
-        items.set(0, items.remove(s - 1));
-        shiftDown();
-        return result;
+    // удаление произвольной вершины
+    public void delete(int idx) throws NoSuchElementException {
+        int s = items.size-1;
+        if (s < idx) {
+            throw new NoSuchElementException();
+        } else if (s == idx) {
+            datas.remove(idx);
+            items.remove(idx);
+        } else {
+            items.set(idx, items.remove(s));
+            datas.set(idx, datas.remove(s));
+            shiftDown(0);
+        }
+    }
+
+    // обновление данных вершины
+    public void update(int idx, int newVal, int newData) {
+        int oldVal = items.get(idx);
+        datas.set(idx, newData);
+        items.set(idx, newVal);
+        if (oldVal > newVal) {
+            shiftDown(idx);
+        } else {
+            shiftUp(idx);
+        }
     }
 
     // размер кучи
     public int size() {
-        return items.size();
+        return items.size;
     }
 
     // проверка на пустоту
@@ -87,28 +108,77 @@ public class BiHeap2int {
     }
 
     // максимальный элемент
-    public int max() {
+    public int maxVal() {
         return items.get(0);
+    }
+    // данные, подвязанные к вершине кучи
+    public int maxValData() {
+        return datas.get(0);
+    }
+
+    // провести быстрый поиск в куче, найти элемент с наиболее подходящим значением, не меньше заданного
+    public int findMinValItemIdx(int minValue) {
+        int pos = items.size - 1;
+        while (pos > 0) {
+            int curr = (pos - 1) / 2;
+            if (items.get(pos)<minValue) {
+                pos = curr;
+            } else return pos;
+        }
+        throw new NoSuchElementException();
+    }
+    public int getVal(int idx) {
+        return items.get(idx);
+    }
+    public int getValData(int idx) {
+        return datas.get(idx);
+    }
+
+    // провести сортировку массивов по массиву данных от наименьшего к наибольшему
+    public void sortByData() {
+        int[] v = items.nums;
+        int[] d = datas.nums;
+        int ds = datas.size;
+        for (int i = 0; i < ds; i++) {
+            int min = d[i];
+            int min_i = i;
+            for (int j = i + 1; j < ds; j++) {
+                if (d[j] < min) {
+                    min = d[j];
+                    min_i = j;
+                }
+            }
+            if (i != min_i) {
+                int tmp = d[i];
+                d[i] = d[min_i];
+                d[min_i] = tmp;
+                tmp = v[i];
+                v[i] = v[min_i];
+                v[min_i] = tmp;
+            }
+        }
     }
 
 
     public static void main(String[] args) {
-        BiHeap2int test = new BiHeap2int(15);
-        test.insert(16);
-        test.insert(9);
-        test.insert(11);
-        test.insert(10);
-        test.insert(13);
-        test.insert(31);
-        test.insert(19);
-        test.insert(2);
-        test.insert(50);
-        test.insert(23);
-        System.out.println(test);
-        while (!test.isEmpty()) {
+        BiHeap2int h = new BiHeap2int(15);
+        h.insert(16, 1);
+        h.insert(9, 2);
+        h.insert(11, 3);
+        h.insert(10, 4);
+        h.insert(13, 5);
+        h.insert(31, 6);
+        h.insert(19, 7);
+        h.insert(2, 8);
+        h.insert(50, 9);
+        h.insert(23, 10);
+        System.out.println(h);
+        int i = h.findMinValItemIdx(2);
+        System.out.println("idx="+i+" v="+h.getVal(i)+" d="+h.getValData(i));
+        while (!h.isEmpty()) {
             //System.out.print(test.max()+" ");
-            test.delete();
-            System.out.println(test.items);
+            h.delete(0);
+            System.out.println(h.items);
         }
     }
 }
