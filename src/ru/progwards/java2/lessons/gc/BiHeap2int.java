@@ -104,7 +104,14 @@ public class BiHeap2int {
 
     // преобразование в строку
     public String toString() {
-        return items.toString();
+        int size = datas.size;
+        StringBuilder sb = new StringBuilder(size*12);
+        int[] ePoses = datas.nums;
+        int[] eSizes = items.nums;
+        for(int i=0; i< size; i++) {
+            sb.append(eSizes[i]+":"+ePoses[i]+",");
+        }
+        return "BiHeap{" + sb.toString() + " size=" + size +'}';
     }
 
     // максимальный элемент
@@ -123,7 +130,14 @@ public class BiHeap2int {
             int curr = (pos - 1) / 2;
             if (items.get(pos)<minValue) {
                 pos = curr;
-            } else return pos;
+            } else {
+                return pos;
+            }
+        }
+        //pos=0 on exit
+        if(items.get(0)>=minValue) {
+            //System.out.println("findMinValItemIdx: size="+items.get(0)+" for asked="+minValue);
+            return 0;
         }
         throw new NoSuchElementException();
     }
@@ -132,31 +146,6 @@ public class BiHeap2int {
     }
     public int getValData(int idx) {
         return datas.get(idx);
-    }
-
-    // провести сортировку массивов по массиву данных от наименьшего к наибольшему
-    public void sortByData() {
-        int[] v = items.nums;
-        int[] d = datas.nums;
-        int ds = datas.size;
-        for (int i = 0; i < ds; i++) {
-            int min = d[i];
-            int min_i = i;
-            for (int j = i + 1; j < ds; j++) {
-                if (d[j] < min) {
-                    min = d[j];
-                    min_i = j;
-                }
-            }
-            if (i != min_i) {
-                int tmp = d[i];
-                d[i] = d[min_i];
-                d[min_i] = tmp;
-                tmp = v[i];
-                v[i] = v[min_i];
-                v[min_i] = tmp;
-            }
-        }
     }
 
 

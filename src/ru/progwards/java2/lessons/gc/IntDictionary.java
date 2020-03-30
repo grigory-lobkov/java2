@@ -1,6 +1,7 @@
 package ru.progwards.java2.lessons.gc;
 
 import java.util.Enumeration;
+import java.util.Iterator;
 
 public abstract
 class IntDictionary<V> {
@@ -111,4 +112,17 @@ class IntDictionary<V> {
      * @exception NullPointerException if {@code key} is {@code null}.
      */
     public abstract V remove(int key);
+
+    // refreshes key of an object
+    public abstract V change(int oldKey, int newKey);
+
+    public abstract class Entry {
+        protected int key;
+        protected V value;
+    }
+
+    public abstract Iterator<Entry> getIterator();
+
+    public abstract String toString();
+
 }

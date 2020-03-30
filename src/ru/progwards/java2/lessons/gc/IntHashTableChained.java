@@ -8,23 +8,29 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
     // реализация Hashtable<int, V>
     // количество элементов хранилища - всегда простое число
 
-    private static class Entry<V> {
+    private class Entry extends IntDictionary<V>.Entry {
 
-        private V value;
-        final private int key;
-        private Entry<V> next;
+        //protected int key;
+        //protected V value;
+        private Entry next;
 
-        Entry(int key, V value, Entry<V> next) {
+        Entry(int key, V value, Entry next) {
             this.value = value;
             this.key = key;
             this.next = next;
         }
+
+        @Override
+        public String toString() {
+            return "{" + key + ',' + value + '}'+(next!=null?next:"");
+        }
     }
 
-    private transient Entry<V>[] storage; // хранилище
+    private transient Object[] storage; // хранилище
     private int storageSize;       // размер хранилища
     private int incPercent;        // на сколько процентов увеличивать при переполнении
     private int collPercent = 2;   // допустимый процент коллизий
+    private int collMinCount = 2;  // минимальное количество коллизий
     private int size;              // количество элементов в таблице
     private int threshold;         // при каком количестве коллизий увеличивать хранилище
 
@@ -48,9 +54,10 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
 
     private void initialize() {
         storageSize = Prime.getHigher(storageSize);
-        storage = (Entry<V>[])new Entry<?>[storageSize];
+        storage = new Object[storageSize];
         size = 0;
         threshold = storageSize * collPercent / 100;
+        if(threshold<collMinCount) threshold=collMinCount;
     }
 
     public int size() { // from IntDictionary<V>
@@ -75,9 +82,13 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
         IntHashTableChained<V> table = new IntHashTableChained(storageSize, incPercent);
 
         for (int i = storage.length; i-- > 0; ) {
-            Entry<V> e = (Entry<V>)storage[i];
+            Entry e = (Entry)storage[i];
             if(e != null) {
                 table.put(e.key, e.value);
+                while (e.next!=null) {
+                    e = e.next;
+                    table.put(e.key, e.value);
+                }
             }
         }
 
@@ -87,18 +98,19 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
     }
 
     public synchronized V put(int key, V value) { // from IntDictionary<V>
-        Entry<V>[] tab = storage;
+        Object[] tab = storage;
         if (value == null) {
             throw new NullPointerException();
         }
         // Makes sure the key is not already in the hashtable.
         int index = (key & 0x7FFFFFFF) % storageSize;
-        Entry<V> entry = tab[index];
+        Entry entry = (Entry)tab[index];
         int collis = 0;
         for (; entry != null; entry = entry.next) {
             if (entry.key == key) {
                 V old = entry.value;
                 entry.value = value;
+                size++;
                 return old;
             }
             collis++;
@@ -107,10 +119,11 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
         if (collis >= threshold) {
             rehashWithIncrement();
             index = (key & 0x7FFFFFFF) % storageSize;
-            tab = (Entry<V>[])storage;
+            tab = storage;
         }
-        Entry<V> e = tab[index];
-        tab[index] = new Entry<V>(key, value, e);
+        Entry e = (Entry)tab[index];
+        tab[index] = new Entry(key, value, e);
+        size++;
         return null;
     }
 
@@ -119,9 +132,9 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
     }
 
     public synchronized V get(int key) { // from IntDictionary<V>
-        Entry<V>[] tab = storage;
+        Object[] tab = storage;
         int index = (key & 0x7FFFFFFF) % storageSize;
-        for (Entry<V> n = tab[index]; n != null; n = n.next) {
+        for (Entry n = (Entry)tab[index]; n != null; n = n.next) {
             if (n.key == key) {
                 return n.value;
             }
@@ -130,10 +143,10 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
     }
 
     public synchronized V remove(int key) {
-        Entry<V>[] tab = storage;
+        Object[] tab = storage;
         int index = (key & 0x7FFFFFFF) % tab.length;
-        Entry<V> e = tab[index];
-        for(Entry<V> prev = null; e != null ; prev = e, e = e.next) {
+        Entry e = (Entry)tab[index];
+        for(Entry prev = null; e != null ; prev = e, e = e.next) {
             if (e.key == key) {
                 if (prev != null) {
                     prev.next = e.next;
@@ -142,15 +155,16 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
                 }
                 V oldValue = e.value;
                 e.value = null;
+                size--;
                 return oldValue;
             }
         }
         return null;
     }
 
-    public synchronized V change(int key1, int key2) {
-        V value = remove(key1);
-        put(key2, value);
+    public synchronized V change(int oldKey, int newKey) {
+        V value = remove(oldKey);
+        put(newKey, value);
         return value;
     }
 
@@ -169,7 +183,7 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
             return new Enumerator<>(type, true);
         }
     }
-    public Iterator<Entry<V>> getIterator() {
+    public Iterator<IntDictionary<V>.Entry> getIterator() {
         return getIterator(ENTRIES);
     }
 
@@ -180,10 +194,10 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
     private static final int ENTRIES = 2;
 
     private class Enumerator<T> implements Enumeration<T>, Iterator<T> {
-        final Entry<?>[] table = IntHashTableChained.this.storage;
+        final Object[] table = IntHashTableChained.this.storage;
         int index = table.length;
-        Entry<?> entry;
-        Entry<?> lastReturned;
+        Entry entry;
+        Entry lastReturned;
         final int type;
 
         final boolean iterator;
@@ -194,11 +208,11 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
         }
 
         public boolean hasMoreElements() {
-            Entry<?> e = entry;
+            Entry e = entry;
             int i = index;
-            Entry<?>[] t = table;
+            Object[] t = table;
             while (e == null && i > 0) {
-                e = t[--i];
+                e = (Entry)t[--i];
             }
             entry = e;
             index = i;
@@ -206,21 +220,21 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
         }
 
         public T nextElement() {
-            Entry<?> et = entry;
+            Entry et = entry;
             int i = index;
-            Entry<?>[] t = table;
+            Object[] t = table;
 
             while (et == null && i > 0) {
-                et = t[--i];
+                et = (Entry)t[--i];
             }
             entry = et;
             index = i;
             if (et != null) {
-                Entry<?> e = lastReturned = entry;
+                Entry e = lastReturned = entry;
                 entry = e.next;
                 return type == KEYS ? (T)Integer.valueOf(e.key) : (type == VALUES ? (T)e.value : (T)e);
             }
-            throw new NoSuchElementException("Hashtable Enumerator");
+            throw new NoSuchElementException("IntHashTableChained Enumerator");
         }
 
         // Iterator methods
@@ -236,14 +250,14 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
             if (!iterator)
                 throw new UnsupportedOperationException();
             if (lastReturned == null)
-                throw new IllegalStateException("Hashtable Enumerator");
+                throw new IllegalStateException("IntHashTableChained Enumerator");
 
             synchronized(this) {
-                Entry<?>[] tab = IntHashTableChained.this.storage;
+                Object[] tab = IntHashTableChained.this.storage;
                 int index = (lastReturned.key & 0x7FFFFFFF) % IntHashTableChained.this.storageSize;
 
-                Entry<V> e = (Entry<V>)tab[index];
-                for(Entry<V> prev = null; e != null; prev = e, e = e.next) {
+                Entry e = (Entry)tab[index];
+                for(Entry prev = null; e != null; prev = e, e = e.next) {
                     if (e == lastReturned) {
                         if (prev == null)
                             tab[index] = e.next;
@@ -256,6 +270,16 @@ public class IntHashTableChained<V> extends IntDictionary<V> {
                 throw new ConcurrentModificationException();
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "IntHashTableChained{" +
+                "storage=" + Arrays.toString(storage) +
+                ", storageSize=" + storageSize +
+                ", size=" + size +
+                ", threshold=" + threshold +
+                '}';
     }
 
 

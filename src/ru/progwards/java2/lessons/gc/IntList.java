@@ -31,11 +31,9 @@ public class IntList {
         if(size == l) {
             int[] nums1 = new int[l + l * incPercent / 100];
             System.arraycopy(nums, 0, nums1, 0, l);
-            nums1[l] = item;
             nums = nums1;
-        } else {
-            nums[size++] = item;
         }
+        nums[size++] = item;
     }
     // удаляет элемент в позиции pos массива
     public int remove(int pos) {
