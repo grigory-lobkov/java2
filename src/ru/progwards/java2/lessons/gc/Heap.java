@@ -55,6 +55,7 @@ public class Heap {
     // Соответственно это должен быть непрерывный блок (последовательность ячеек), которые на момент
     // выделения свободны. Возвращает "указатель" - индекс первой ячейки в массиве, размещенного блока.
     public int malloc(int size) throws OutOfMemoryException {
+        if(size==0) throw new InvalidPointerException();
         int freeZoneIdx;
         //if(empties.size()>objects.size()*freeToObjectsCountToDefrag/100) defrag();
         try {
@@ -118,6 +119,13 @@ public class Heap {
         empties.insert(size, pos);
         //System.out.println("Freed: pos="+pos+" size="+size);
     }
+    public void free(int pos) throws InvalidPointerException {
+        Integer s = objects.get(pos);
+        if(s==null) throw new InvalidPointerException();
+        objects.remove(pos);
+        empties.insert(s, pos);
+        //System.out.println("Freed: pos="+pos+" size="+s);
+    }
 
     // осуществляет дефрагментацию кучи - ищет смежные свободные блоки, границы которых
     // соприкасаются и которые можно слить в один.
@@ -132,7 +140,7 @@ public class Heap {
         } else {
             defragByEmpties();
         }
-        //System.out.println("Defragmented: wasCount="+eSize+" nowCount="+empties.size());
+        System.out.println("Defragmented: wasCount="+eSize+" nowCount="+empties.size());
     }
 
     private void defragByObjects() {
@@ -250,7 +258,7 @@ public class Heap {
         // заводим новый объект пустых мест
         empties = new BiHeap2int(initObjCount);
         empties.insert(bytes.length - freePosStart, freePosStart); // добавим всё пространство как свободное, начиная с адреса 0
-        //System.out.println("Compacted: freeFrom="+freePosStart+" freeBytes="+(bytes.length - freePosStart));
+        System.out.println("Compacted: freeFrom="+freePosStart+" freeBytes="+(bytes.length - freePosStart));
     }
 
     // провести сортировку массивов по массиву данных от наименьшего к наибольшему
