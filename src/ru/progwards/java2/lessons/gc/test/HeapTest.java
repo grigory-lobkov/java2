@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class HeapTest {
-    static final int maxSize = 1000000000;
+    static final int maxSize = 1_000_000_000;
     static final int maxSmall = 10;
     static final int maxMedium = 100;
     static final int maxBig = 1000;

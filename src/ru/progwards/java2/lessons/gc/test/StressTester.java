@@ -6,7 +6,7 @@ import ru.progwards.java2.lessons.gc.OutOfMemoryException;
 
 public class StressTester {
 
-    static final int HEAP_SIZE=1*1024*1024;
+    static final int HEAP_SIZE=16*1024*1024;
     static Heap heap;
 
     void fillAndFree(int wordSize) throws OutOfMemoryException, InvalidPointerException {
@@ -123,12 +123,12 @@ public class StressTester {
     void testHalfFill(int wordSize) throws Exception {
         statStart("testHalfFill(" + wordSize + ")");
         heap = new Heap(HEAP_SIZE);
-        int half = HEAP_SIZE;
+        int half = HEAP_SIZE / 2;
         fill(wordSize, 1, 0, half); // наплняем до половины кучу
         free(wordSize, 2, 0, half); // чистим каждый воторой заполненный, больше трогать не будем
         statStep("Create 1/2");
-        fill(wordSize, 1, half, HEAP_SIZE);
-        free(wordSize, 1, half, HEAP_SIZE);
+        fill(wordSize+1, 1, half, HEAP_SIZE);
+        free(wordSize+1, 1, half, HEAP_SIZE);
         statStep("Fragment 2/2");
         heap.defrag();
         statStep("Defrag");
@@ -138,8 +138,8 @@ public class StressTester {
         fill(wordSize, 1, 0, half); // наплняем до половины кучу
         free(wordSize, 2, 0, half); // чистим каждый воторой заполненный, больше трогать не будем
         statStep("Create 1/2");
-        fill(wordSize, 1, half, HEAP_SIZE);
-        free(wordSize, 1, half, HEAP_SIZE);
+        fill(wordSize+1, 1, half, HEAP_SIZE);
+        free(wordSize+1, 1, half, HEAP_SIZE);
         statStep("Fragment 2/2");
         heap.compact();
         statStep("Compact");
