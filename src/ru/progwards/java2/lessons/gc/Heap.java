@@ -1,6 +1,5 @@
 package ru.progwards.java2.lessons.gc;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -172,8 +171,6 @@ public class Heap {
         int[] ePoses = empties.datas.nums;
         int[] eSizes = empties.items.nums;
         sort2arrays(ePoses, eSizes, eSize); // отсортируем по адресам
-        System.out.println(Arrays.toString(ePoses));
-        System.out.println(Arrays.toString(eSizes));
         BiHeap2int empts = new BiHeap2int(initObjCount);
 
         // ищем сподряд идущие области и объединяем в новый список свободных областей
@@ -185,13 +182,13 @@ public class Heap {
                 to += eSizes[i];
             } else {
                 empts.insert(to-from, from); //нашли
-                System.out.println("found: size="+(to-from)+" from="+from);
+                //System.out.println("found: size="+(to-from)+" from="+from);
                 from = p;
                 to = from + eSizes[i];
             }
         }
         empts.insert(to-from, from); //обязательно добавляем в конце
-        System.out.println("found! size="+(to-from)+" from="+from);
+        //System.out.println("found! size="+(to-from)+" from="+from);
 
         this.empties = empts;
     }
@@ -209,7 +206,7 @@ public class Heap {
         // найдем наименьшее начало адреса свободного блока
         int[] ePoses = empties.datas.nums;
         for(int i=eSize-1;i>=0;i--) {
-            //System.out.println("free pos="+ePoses[i]);
+            //System.out.println("freeAll pos="+ePoses[i]);
             if (ePoses[i] < freePosStart) {
                 freePosStart = ePoses[i];
             }
@@ -244,6 +241,7 @@ public class Heap {
             for(int b=0;b<s;b++) {
                 bytes[freePosStart+b] = bytes[p+b];
             }
+            //System.arraycopy(bytes, p, bytes, freePosStart, s);
             objects.change(p,freePosStart);
             //System.out.println("oMoved: pos "+p+"->"+freePosStart+" size="+s+" newFreePosStart="+(freePosStart+s));
             freePosStart+=s;
