@@ -5,7 +5,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 /*
-Написать тест, сравнивающий производительность AvlTree и TreeMap отдельно на операциях вставки,
+Написать тест, сравнивающий производительность AvlTree_fail и TreeMap отдельно на операциях вставки,
 удаления и поиска на случайных (random) и сортированных данных.
 А так же на данных из файла wiki.train.tokens, который надо разбить на слова по разделителям
 */
@@ -33,6 +33,6 @@ public class TreeTest {
             tree.find(i);
             tree.delete(i);
         }
-        System.out.println("find&delete passed OK");
+        System.out.println("get&delete passed OK");
     }
 }
