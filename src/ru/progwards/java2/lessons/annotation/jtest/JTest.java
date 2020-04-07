@@ -1,4 +1,4 @@
-package ru.progwards.java2.lessons.annotation;
+package ru.progwards.java2.lessons.annotation.jtest;
 
 import java.lang.annotation.*;
 import java.lang.reflect.InvocationTargetException;

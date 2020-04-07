@@ -1,6 +1,6 @@
-package ru.progwards.java2.lessons.annotation;
+package ru.progwards.java2.lessons.annotation.jtest;
 
-import ru.progwards.java2.lessons.annotation.JTest.*;
+import ru.progwards.java2.lessons.annotation.jtest.JTest.*;
 
 public class SimpleCalculator_test {
 
