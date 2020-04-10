@@ -1,9 +1,9 @@
-package ru.progwards.java2.lessons.tests.test.app;
+package ru.progwards.java2.lessons.threads.bankomat.tests;
 
 import org.junit.Assert;
 import org.junit.Test;
-import ru.progwards.java2.lessons.tests.app.Store;
-import ru.progwards.java2.lessons.tests.app.model.Account;
+import ru.progwards.java2.lessons.threads.bankomat.Store;
+import ru.progwards.java2.lessons.threads.bankomat.model.Account;
 
 import java.time.Instant;
 import java.util.Date;
@@ -11,11 +11,13 @@ import java.util.Map;
 
 public class Store_getStore {
 
+    static Store store;
     static Map<String, Account> getStore;
     static String key;
     static Account account;
     static {
-        getStore = Store.getStore();
+        store = new Store();
+        getStore = store.getStore();
         if (getStore!=null && getStore.size()>0) {
             for (String k:getStore.keySet()) {
                 key = k;

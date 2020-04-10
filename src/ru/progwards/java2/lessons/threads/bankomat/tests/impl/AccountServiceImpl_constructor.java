@@ -1,13 +1,13 @@
-package ru.progwards.java2.lessons.tests.test.app.service.impl;
+package ru.progwards.java2.lessons.threads.bankomat.tests.impl;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ru.progwards.java2.lessons.tests.app.Store;
-import ru.progwards.java2.lessons.tests.app.model.Account;
-import ru.progwards.java2.lessons.tests.app.service.AccountService;
-import ru.progwards.java2.lessons.tests.app.service.StoreService;
-import ru.progwards.java2.lessons.tests.app.service.impl.AccountServiceImpl;
-import ru.progwards.java2.lessons.tests.app.service.impl.StoreServiceImpl;
+import ru.progwards.java2.lessons.threads.bankomat.Store;
+import ru.progwards.java2.lessons.threads.bankomat.model.Account;
+import ru.progwards.java2.lessons.threads.bankomat.service.AccountService;
+import ru.progwards.java2.lessons.threads.bankomat.service.StoreService;
+import ru.progwards.java2.lessons.threads.bankomat.service.impl.AccountServiceImpl;
+import ru.progwards.java2.lessons.threads.bankomat.service.impl.StoreServiceImpl;
 
 import java.util.Date;
 import java.util.Map;
@@ -22,8 +22,9 @@ public class AccountServiceImpl_constructor {
 
     @BeforeClass
     public static void init() {
-        store = Store.getStore();
-        sservice = new StoreServiceImpl();
+        Store s = new Store();
+        store = s.getStore();
+        sservice = new StoreServiceImpl(s);
 
         testAccount = new Account();
         testKey = UUID.randomUUID().toString();
