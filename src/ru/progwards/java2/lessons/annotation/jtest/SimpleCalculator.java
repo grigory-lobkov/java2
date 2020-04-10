@@ -1,7 +1,5 @@
 package ru.progwards.java2.lessons.annotation.jtest;
 
-import ru.progwards.java2.lessons.annotation.di.DI;
-
 public class SimpleCalculator {
 
     public int sum(int val1, int val2) {

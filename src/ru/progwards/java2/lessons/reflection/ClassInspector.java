@@ -87,7 +87,7 @@ class Person {
 
     // вывести все конструкторы класса
     public static void printConstructors(Class clazz, String prefix) {
-        Constructor[] constructors = clazz.getConstructors();
+        Constructor[] constructors = clazz.getDeclaredConstructors();
         for (Constructor constructor : constructors) {
             System.out.println(prefix + clazz.getSimpleName() + "("
                     + getArguments(constructor.getParameters()) + ") {}");
@@ -96,7 +96,7 @@ class Person {
 
     // вывести все свойства класса
     public static void printFields(Class clazz, String prefix) {
-        Field[] fields = clazz.getFields();
+        Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             System.out.println(prefix + getModifiers(field.getModifiers(), false)
                     + field.getType().getSimpleName() + " " + field.getName() + ";");
@@ -105,7 +105,7 @@ class Person {
 
     // вывести все методы класса
     public static void printMethods(Class clazz, String prefix) {
-        Method[] methods = clazz.getMethods();
+        Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             System.out.println(prefix + getModifiers(method.getModifiers(), false)
                     + method.getReturnType().getSimpleName() +" "+ method.getName() + "("
