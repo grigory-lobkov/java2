@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+Premain-Class: ru.progwards.java2.lessons.classloader.Interceptor
