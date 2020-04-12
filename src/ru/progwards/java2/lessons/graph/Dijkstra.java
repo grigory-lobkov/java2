@@ -1,6 +1,7 @@
 package ru.progwards.java2.lessons.graph;
 
 import java.util.Arrays;
+import java.util.TreeSet;
 
 import static ru.progwards.java2.lessons.graph.Dijkstra.State.*;
 
@@ -20,20 +21,7 @@ public class Dijkstra {
     /**
      * Значение бесконечности
      */
-    final static int f = Integer.MAX_VALUE;
-    enum State {
-        /**
-         * Расчет завершен
-         */
-        DONE,
-        /**
-         * Расчитан
-         */
-        CALCED,
-        /**
-         * Не рассчитан
-         */
-        UNDEF};
+    final static int INF = Integer.MAX_VALUE;
 
     Dijkstra(int[][] graph) {
         size = graph.length;
@@ -47,50 +35,102 @@ public class Dijkstra {
     }
 
     /**
+     * Состояние вершины
+     */
+    enum State {
+        // Расчет завершен
+        DONE,
+        // Расчёт в процессе (в очереди)
+        CALC,
+        // Не рассчитана
+        UNDEF};
+
+    /**
+     * Вершина
+     */
+    class Vertex {
+        /**
+         * Порядковый номер (с нуля)
+         */
+        int n;
+        /**
+         * Вес (сколько стоит добраться)
+         */
+        int weight;
+        /**
+         * Состояние
+         * @see State
+         */
+        State status;
+
+        @Override
+        public String toString() {
+            return "Vertex{n=" + n + ", weight=" + weight + '}';
+        }
+    }
+
+    /*
      * Алгоритм Дейсктры из вершины n
      * @param n Вершина, из которой надо построить маршруты
      * @return Матрицу вариантов минимальных маршрутов до всех вершин
      */
-    public int[][] find(int n) {
-        // массив состояний вершин
-        State states[] = new State[size];
-        // никого не рассчитали
-        for (int i = 0; i < size; i++)
-            states[i] = UNDEF;
-        // первую (n-ую) вершину посчитали
-        states[n] = CALCED;
-        // количество завершенных
-        int visitedCount = 0;
-
+    public int[] find(int n) {
         // создадим пустой массив результатов, всем узлам - бесконечность
-        int[][] result = new int[size][];
+        int[] result = new int[size];
+        Arrays.fill(result, INF);
+        // массив весов вершин
+        Vertex V[] = new Vertex[size];
         for (int i = 0; i < size; i++) {
-            result[i] = new int[size];
-            Arrays.fill(result[i], f);
+            V[i] = new Vertex();
+            V[i].weight = INF;
+            V[i].n = i;
+            V[i].status = UNDEF;
         }
-        // в первой вершине - нуль
-        result[n][n] = 0;
+        // вес искомой вершины
+        V[n].weight = 0;
+        result[n] = 0;
+        // очередь вершин
+        TreeSet<Vertex> vertQueue = new TreeSet<Vertex>((v1, v2) -> {
+            if (v1.weight == v2.weight)
+                return Integer.compare(v1.n, v2.n);
+            else return v1.weight > v2.weight ? 1 : -1;
+        });
+        vertQueue.add(V[n]);
 
-        while (visitedCount != size) {
-            // найдем минимальную посчитанную вершину
-            int minV = -1;
-            for (int i = 0; i < size; i++)
-                if (states[i] == CALCED) {
-                    minV = i;
-                    break;
-                }
+        // пока очередь не пуста
+        while (vertQueue.size() != 0) {
+            Vertex aV = vertQueue.pollFirst(); // вершина с минимальным весом
+            // работа по данной вершине завершена
+            aV.status = DONE;
+            result[aV.n] = aV.weight;
             // пройдем по связям этой вершины
-            int[] links = graph[minV];
+            int[] links = graph[aV.n]; // да, выгоднее было бы что-то типа связного списка - его можно было бы подготовить в конструкторе
             for (int i = 0; i < size; i++) {
-                if (links[i] < f && states[i] != DONE) {
-
+                int edgeWeight = links[i];
+                if (edgeWeight < INF) {
+                    // с вершиной есть связь
+                    Vertex bV = V[i];
+                    if (bV.status != DONE) {
+                        // вершина еще не расчитана до конца
+                        int newWeight = edgeWeight + aV.weight;
+                        if (newWeight < bV.weight) {
+                            // найден меньший вес до вершины
+                            if (bV.status == CALC)
+                                vertQueue.remove(bV);
+                            else
+                                bV.status = CALC;
+                            bV.weight = newWeight;
+                            vertQueue.add(bV); // положим в очередь
+                        }
+                    }
                 }
             }
         }
-
+        return result;
     }
 
     public static void main(String[] args) {
+        final int f = INF;
 
         // входная матрица графа, f = бесконечность
         int[][] matrix = {
@@ -105,7 +145,8 @@ public class Dijkstra {
         Dijkstra d = new Dijkstra(matrix);
 
         // выводим для нулевого узла
-        System.out.println(Arrays.deepToString(d.find(0)));
+        //System.out.println(Arrays.deepToString(d.find(0)));
+        System.out.println(Arrays.toString(d.find(0)));
 
     }
 
