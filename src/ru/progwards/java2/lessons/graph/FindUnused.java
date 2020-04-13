@@ -6,7 +6,7 @@ import java.util.List;
 import static ru.progwards.java2.lessons.graph.FindUnused.Mark.*;
 
 /**
- * Задача поиска неиспользуемых объектов (купированный алгоритм Тарьяна)
+ * Задача поиска неиспользуемых объектов (вершин в ненаправленном графе - купированный алгоритм Тарьяна)
  */
 public class FindUnused {
 
@@ -58,7 +58,7 @@ public class FindUnused {
 
         List<CObject> result = new ArrayList<CObject>();
         for (CObject o : objects)
-            if (o.mark != NOT_USED) // не белый
+            if (o.mark == NOT_USED) // не белый
                 result.add(o);
         return result;
     }
