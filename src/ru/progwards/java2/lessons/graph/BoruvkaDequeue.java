@@ -8,10 +8,10 @@ import static ru.progwards.java2.lessons.graph.BoruvkaModel.Status.*;
 /**
  * Нахождение минимального оставного дерева по алгоритму Борувки
  *
- * Основа для очерди рёбер - TreeSet
- * По тестам, где рёбер в 10 раз больше чем вершин - выгоднее PriorityQueue, по памяти - одинаково
+ * Основа для очерди рёбер - PriorityQueue
+ * По тестам, где рёбер в 10 раз больше чем вершин - выгоднее чем TreeSet, по памяти - одинаково
  */
-public class Boruvka<N, E> implements IBoruvka<N, E> {
+public class BoruvkaDequeue<N, E> implements IBoruvka<N, E> {
 
     /**
      * Брать ли дуги, исходящие из узла
@@ -25,7 +25,7 @@ public class Boruvka<N, E> implements IBoruvka<N, E> {
      * Если оба параметра будут {@code false}, то дуги найдены не будут
      * Если {@true} имеет только один параметр, очень важно, с какой веришины начинаем обход(от расположения в графе), т.к. дерево может получиться не минимальным
      *
-     * @see Boruvka#takeOuts
+     * @see BoruvkaDequeue#takeOuts
      */
     final boolean takeIns = true;
 
@@ -43,7 +43,7 @@ public class Boruvka<N, E> implements IBoruvka<N, E> {
      * @return минимальное остовное дерево в виде списка дуг графа
      */
     static <NodeType, EdgeType> List<Edge<NodeType, EdgeType>> minTree(Graph<NodeType, EdgeType> graph) {
-        Boruvka<NodeType, EdgeType> alg = new Boruvka<NodeType, EdgeType>();
+        BoruvkaDequeue<NodeType, EdgeType> alg = new BoruvkaDequeue<NodeType, EdgeType>();
         return alg.getMinEdgeTree(graph);
     }
     
@@ -101,7 +101,8 @@ public class Boruvka<N, E> implements IBoruvka<N, E> {
         baseNode.status = VISITED; // серый
 
         // собираем дерево из исходящих дуг
-        TreeSet<Edge<N, E>> referenced = new TreeSet<Edge<N, E>>(edgesComparator);
+        Queue<Edge<N, E>> referenced = new PriorityQueue<Edge<N, E>>(edgesComparator);
+
         for (Node<N, E> n : g.nodes) {
             if (takeOuts)
                 for (Edge<N, E> e : n.out)
@@ -118,7 +119,7 @@ public class Boruvka<N, E> implements IBoruvka<N, E> {
                 referenced.stream().forEach(System.out::print);
                 System.out.println();
             }
-            Edge<N, E> e = referenced.pollFirst();
+            Edge<N, E> e = referenced.poll();
             e.processed = true;
             Node<N, E> n = e.Other(g); // узел не в графе
             if (n != null) {
@@ -135,7 +136,7 @@ public class Boruvka<N, E> implements IBoruvka<N, E> {
      * @param g1 граф-приёмник
      * @param g2 граф-источник (опустошаемый)
      */
-    private void Merge(Graph<N, E> g1, Graph<N, E> g2, TreeSet<Edge<N, E>> referenced) {
+    private void Merge(Graph<N, E> g1, Graph<N, E> g2, Queue<Edge<N, E>> referenced) {
         if (writeDebugInfo) System.out.println("Merge(" + g1.nodes.get(0) + "," + g2.nodes.get(0) + ")");
         for (Node<N, E> n : g2.nodes) {
             //boolean isNewRefs = n.status != IN_USE;

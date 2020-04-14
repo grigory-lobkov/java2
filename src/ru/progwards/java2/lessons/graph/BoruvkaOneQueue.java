@@ -1,6 +1,8 @@
 package ru.progwards.java2.lessons.graph;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 
 import static ru.progwards.java2.lessons.graph.BoruvkaModel.*;
 import static ru.progwards.java2.lessons.graph.BoruvkaModel.Status.*;
@@ -8,10 +10,10 @@ import static ru.progwards.java2.lessons.graph.BoruvkaModel.Status.*;
 /**
  * Нахождение минимального оставного дерева по алгоритму Борувки
  *
- * Основа для очерди рёбер - TreeSet
- * По тестам, где рёбер в 10 раз больше чем вершин - выгоднее PriorityQueue, по памяти - одинаково
+ * Данный алгоритм просто находит рёбра наименьшего веса, чтобы коснуться всех вершин - он не генерирует связный граф
+ * Алгоритм ошибочен
  */
-public class Boruvka<N, E> implements IBoruvka<N, E> {
+public class BoruvkaOneQueue<N, E> implements IBoruvka<N, E> {
 
     /**
      * Брать ли дуги, исходящие из узла
@@ -25,7 +27,7 @@ public class Boruvka<N, E> implements IBoruvka<N, E> {
      * Если оба параметра будут {@code false}, то дуги найдены не будут
      * Если {@true} имеет только один параметр, очень важно, с какой веришины начинаем обход(от расположения в графе), т.к. дерево может получиться не минимальным
      *
-     * @see Boruvka#takeOuts
+     * @see BoruvkaOneQueue#takeOuts
      */
     final boolean takeIns = true;
 
@@ -43,7 +45,7 @@ public class Boruvka<N, E> implements IBoruvka<N, E> {
      * @return минимальное остовное дерево в виде списка дуг графа
      */
     static <NodeType, EdgeType> List<Edge<NodeType, EdgeType>> minTree(Graph<NodeType, EdgeType> graph) {
-        Boruvka<NodeType, EdgeType> alg = new Boruvka<NodeType, EdgeType>();
+        BoruvkaOneQueue<NodeType, EdgeType> alg = new BoruvkaOneQueue<NodeType, EdgeType>();
         return alg.getMinEdgeTree(graph);
     }
     
@@ -54,38 +56,19 @@ public class Boruvka<N, E> implements IBoruvka<N, E> {
      */
     public List<Edge<N, E>> getMinEdgeTree(Graph<N, E> graph) {
         List<Edge<N, E>> result = new ArrayList<Edge<N, E>>(graph.nodes.size());
-        ArrayList<Graph<N, E>> graphs = new ArrayList<Graph<N, E>>(graph.nodes.size());
 
         // генерация оставных деревьев
         for (Node n : graph.nodes) {
             n.status = NOT_USED; // белый
-            Graph<N, E> g = new Graph<N, E>(new ArrayList<Node<N, E>>(), List.of());
-            n.graph = g;
-            g.nodes.add(n);
-            graphs.add(g);
+            n.graph = null;
         }
         // проидентифицируем дуги
         int id = 0;
         for (Edge e : graph.edges)
             e.id = id++;
 
-        for (Graph<N, E> g : graphs)
-            if (checkGraphNotUsed(g))
-                Find(result, g);
+        Find(result, graph);
         return result;
-    }
-
-    /**
-     * Проверить, рассчитаны ли какие-либо элементы из заданного графа
-     *
-     * @param g проверяемый граф
-     * @return Истина, если ни один из элементов графа не рассчитывался
-     */
-    private boolean checkGraphNotUsed(Graph<N, E> g) {
-        for (Node n : g.nodes)
-            if (n.status != NOT_USED)
-                return false;
-        return g.nodes.size() > 0;
     }
 
     /**
@@ -96,9 +79,7 @@ public class Boruvka<N, E> implements IBoruvka<N, E> {
      * @param g      оставной лес, который анализируем сейчас (растёт по мере объединения)
      */
     private void Find(List<Edge<N, E>> result, Graph<N, E> g) {
-        Node baseNode = g.nodes.get(0);
-        if (writeDebugInfo) System.out.println("Find(" + baseNode + ")");
-        baseNode.status = VISITED; // серый
+        if (writeDebugInfo) System.out.println("Find()");
 
         // собираем дерево из исходящих дуг
         TreeSet<Edge<N, E>> referenced = new TreeSet<Edge<N, E>>(edgesComparator);
@@ -119,50 +100,19 @@ public class Boruvka<N, E> implements IBoruvka<N, E> {
                 System.out.println();
             }
             Edge<N, E> e = referenced.pollFirst();
-            e.processed = true;
             Node<N, E> n = e.Other(g); // узел не в графе
             if (n != null) {
-                Merge(g, n.graph, referenced);
+                if (writeDebugInfo) System.out.println("Add "+e);
+                n.graph = g;
+                n.status = IN_USE;
+                n = e.Other(n);
+                if(n!=null) {
+                    n.graph = g;
+                    n.status = IN_USE;
+                }
                 result.add(e);
             }
         }
-        baseNode.status = IN_USE; // черный
-    }
-
-    /**
-     * Объединяем два графа в один, который указан первым
-     *
-     * @param g1 граф-приёмник
-     * @param g2 граф-источник (опустошаемый)
-     */
-    private void Merge(Graph<N, E> g1, Graph<N, E> g2, TreeSet<Edge<N, E>> referenced) {
-        if (writeDebugInfo) System.out.println("Merge(" + g1.nodes.get(0) + "," + g2.nodes.get(0) + ")");
-        for (Node<N, E> n : g2.nodes) {
-            //boolean isNewRefs = n.status != IN_USE;
-            // добавим новые дуги в сравнение, если узел не обработан
-            if (n.status != IN_USE) {
-                if (takeOuts)
-                    for (Edge e : n.out)
-                        if (!e.processed) {
-                            referenced.add(e);
-                            if (writeDebugInfo) System.out.print("  add " + e);
-                        }
-                if (takeIns)
-                    for (Edge e : n.in)
-                        if (!e.processed) {
-                            referenced.add(e);
-                            if (writeDebugInfo) System.out.print("  add " + e);
-                        }
-                if (writeDebugInfo) System.out.println();
-
-                n.status = IN_USE;
-            }
-            // перенесем узел в первый граф
-            g1.nodes.add(n);
-            n.graph = g1;
-        }
-        // очистим граф-источник
-        g2.nodes.clear();
     }
 
     /**
