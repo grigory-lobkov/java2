@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static ru.progwards.java2.lessons.graph.BoruvkaModel.*;
 import static ru.progwards.java2.lessons.graph.BoruvkaModel.Status.*;
@@ -210,6 +212,7 @@ public class BoruvkaThreaded<N, E> implements IBoruvka<N, E> {
         }
     }
 
+    Lock lockDel = new ReentrantLock();
     /**
      * Объединяем два графа в один, который указан первым
      *
@@ -217,9 +220,10 @@ public class BoruvkaThreaded<N, E> implements IBoruvka<N, E> {
      * @param g2 граф-источник (опустошаемый)
      */
     private int Merge(Graph<N, E> g1, Graph<N, E> g2, TreeSet<Edge<N, E>> referenced) {
-        synchronized (BoruvkaThreaded.this) {
-            synchronized (g2.status) {
-                synchronized (g1.status) {
+        lockDel.lock();
+        try {
+            //synchronized (g2.status) {
+                //synchronized (g1.status) {
                     if (writeDebugInfo) System.out.println(Thread.currentThread().getName() + " syncMerge(" + g1.id +"("+g1.nodes.size()+") " +g1.status+ "," + g2.id+"("+g1.nodes.size()+") " +g2.status + ")");
                     if (g1.status == DELETE || g1.nodes.size() == 0)
                         return 3; // наш поток удалён, прекращаем работу
@@ -231,8 +235,10 @@ public class BoruvkaThreaded<N, E> implements IBoruvka<N, E> {
                         g2.status = DELETE; // с графом уже отработали, метим на удаление
                     g1.status = DELETE; // монополизируем оба графа
                     g2.status = DELETE; // монополизируем оба графа
-                }
-            }
+                //}
+            //}
+        } finally {
+            lockDel.unlock();
         }
         if (writeDebugInfo) System.out.println(Thread.currentThread().getName() + " Merge(" + g1.nodes.get(0) + "," + g2.nodes.get(0) + ")");
         for (Node<N, E> n : g2.nodes) {

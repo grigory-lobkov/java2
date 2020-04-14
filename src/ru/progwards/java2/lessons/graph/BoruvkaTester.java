@@ -90,8 +90,7 @@ public class BoruvkaTester {
     private void test_one(BoruvkaModel.Graph graph) throws Exception {
         System.out.println("\nGRAPH nodes=" + graph.nodes.size() + " edges=" + graph.edges.size());
         test(BoruvkaDequeue.class, graph);
-        test(BoruvkaDequeue.class, graph);
-        test(BoruvkaDequeue.class, graph);
+        test(BoruvkaThreaded.class, graph);
     }
 
 }
