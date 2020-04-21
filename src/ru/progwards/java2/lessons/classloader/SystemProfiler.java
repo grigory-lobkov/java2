@@ -69,7 +69,7 @@ ctMethod.insertAfter("System.out.println(\"время выполнения\" + (
 */
 
 public class SystemProfiler implements ClassFileTransformer {
-    final static String ROOT_PKG = "ru.progwards.java2.lessons.classloader".replace(".", "/");
+    final static String ROOT_PKG = "ru.progwards.java2.lessons".replace(".", "/");
 
     private static final ClassPool classPool = ClassPool.getDefault();
     private static final HashSet<String> inspectedClasses = new HashSet<String>();
