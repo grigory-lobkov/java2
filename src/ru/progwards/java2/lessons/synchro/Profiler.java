@@ -36,8 +36,8 @@ public class Profiler implements ClassFileTransformer {
         instrumentation.addTransformer(new Profiler(agentArgument));
     }
 
-    final static String ROOT_PKG = "ru.progwards.java2.lessons";
-    final static String ROOT_PATH = "ru.progwards.java2.lessons".replace(".", "/");
+    final static String ROOT_PKG = "ru.progwards.java2.lessons.synchro.gc";
+    final static String ROOT_PATH = ROOT_PKG.replace(".", "/");
 
     private static final ClassPool classPool = ClassPool.getDefault();
     private static final HashSet<String> inspectedClasses = new HashSet<String>();
@@ -84,7 +84,9 @@ public class Profiler implements ClassFileTransformer {
                         try {
                             String secName = method.getLongName();
                             if(secName.contains(".lambda$")) continue;
+
                             //System.out.println(secName);
+
                             method.insertBefore(String.format(currentPkg+".Profiler.enterSection(\"%s\");",secName));
                             method.insertAfter(String.format(currentPkg+".Profiler.exitSection(\"%s\");",secName));
                             if(method.getName().compareTo("main")==0) {
@@ -179,6 +181,10 @@ public class Profiler implements ClassFileTransformer {
     public static synchronized String getSectionsInfo() {
         sectionsLock.readLock().lock();
         try {
+
+            for (StatisticInfo s: sections.values()) {
+
+            }
             return sections.values().toString();
         } finally {
             sectionsLock.readLock().unlock();
@@ -203,7 +209,7 @@ class StatisticInfo implements Comparable {
     private long runStartTime; // время начала
     private List<Insider> runInside; // кто запущен внутри
 
-    //static ReadWriteLock runInsideLock = new ReentrantReadWriteLock();
+    static ReadWriteLock runInsideLock = new ReentrantReadWriteLock();
 
     StatisticInfo(String sectionName) {
         this.sectionName = sectionName;
@@ -225,9 +231,9 @@ class StatisticInfo implements Comparable {
         long timeNow = System.currentTimeMillis();
         int newFullTime = fullTime + (int) (timeNow - runStartTime);
         int newSelfTime = actualSelfTime(timeNow);
-        //runInsideLock.writeLock().lock();
+        runInsideLock.writeLock().lock();
         runInside.clear();
-        //runInsideLock.writeLock().unlock();
+        runInsideLock.writeLock().unlock();
         isRun = false;
         fullTime = newFullTime;
         selfTime = newSelfTime;
@@ -237,20 +243,20 @@ class StatisticInfo implements Comparable {
     int actualSelfTime(long timeNow) {
         if (!isRun) return selfTime;
         int result = selfTime + (int) (timeNow - runStartTime);
-        //runInsideLock.readLock().lock();
+        runInsideLock.readLock().lock();
         for (Insider i : runInside) {
             result -= i.getInsideTime(timeNow);
         }
-        //runInsideLock.readLock().unlock();
+        runInsideLock.readLock().unlock();
         return result;
     }
 
     // добавить внутреннюю секцию
     void addInsider(StatisticInfo info) {
         if (isRun) {
-            //runInsideLock.writeLock().lock();
+            runInsideLock.writeLock().lock();
             runInside.add(new Insider(info, System.currentTimeMillis()));
-            //runInsideLock.writeLock().unlock();
+            runInsideLock.writeLock().unlock();
         }
     }
 
@@ -258,7 +264,7 @@ class StatisticInfo implements Comparable {
     void removeInsider(StatisticInfo info) {
         if (isRun) {
             long timeNow = System.currentTimeMillis();
-            //runInsideLock.readLock().lock();
+            runInsideLock.readLock().lock();
             ListIterator i = runInside.listIterator();
             while (i.hasNext()) {
                 Insider insider = (Insider) i.next();
@@ -267,7 +273,7 @@ class StatisticInfo implements Comparable {
                     i.remove();
                 }
             }
-            //runInsideLock.readLock().unlock();
+            runInsideLock.readLock().unlock();
         }
     }
     public String rpad(String inputString, int length) {

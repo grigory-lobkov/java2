@@ -8,127 +8,69 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class HeapTest {
-    static final int maxSize = 1_000_000_000;//1_000_000_000
-    static final int maxSmall = 10;
-    static final int maxMedium = 100;
-    static final int maxBig = 1000;
-    static final int maxHuge = 10000;
-    static int allocated = 0;
-    static List<Block> blocks = new ArrayList<>();
-    static int allocTime;
-    static int freeTime;
-
-    static Lock lock = new ReentrantLock();
-
-    static class Block {
-        public int ptr;
-        public int size;
-
-        public Block(int ptr, int size) {
-            this.ptr = ptr;
-            this.size = size;
-        }
-    }
-
-    static int getRandomSize() {
-        int n = Math.abs(ThreadLocalRandom.current().nextInt() % 10);
-        int size = Math.abs(ThreadLocalRandom.current().nextInt());
-        if (n < 6)
-            size %= maxSmall;
-        else if (n < 8)
-            size %= maxMedium;
-        else if (n < 9)
-            size %= maxBig;
-        else
-            size %= maxHuge;
-        if (size > maxSize - allocated)
-            size = maxSize - allocated;
-        return size;
-    }
-
-    public static long mainTest(boolean reinit) {
-        try {
-            //Heap.initLog("heap.log.0");
-            var heap = new Heap(maxSize);
-            int count = 0;
-            allocTime = 0;
-            freeTime = 0;
-            int ptr;
-
-            long start = System.currentTimeMillis();
-            // alloc and free 30% random
-            while ((maxSize - allocated) > maxSize / 1_000_000) { //100_000
-                //while (maxSize != allocated) {
-                if (reinit && blocks.size() >= 10_000) {//1_000
-                    lock.lock();
-                    blocks.clear();
-                    lock.unlock();
-                }
-                long lstart, lstop;
-                int size = getRandomSize() + 1;
-                if (size > maxSize - allocated) {
-                    size = size / 4;
-                    if (size < 1 || size > maxSize - allocated)
-                        size = maxSize - allocated;
-                }
-                count++;
-                lstart = System.currentTimeMillis();
-                ptr = heap.malloc(size);
-                lstop = System.currentTimeMillis();
-                allocated += size;
-                lock.lock();
-                allocTime += lstop - lstart;
-                blocks.add(new Block(ptr, size));
-                int n = Math.abs(ThreadLocalRandom.current().nextInt() % 2);
-                if (n == 0 && blocks.size() > 0) {
-                    n = Math.abs(ThreadLocalRandom.current().nextInt() % blocks.size());
-                    Block block = blocks.get(n);
-                    blocks.remove(n);
-                    lock.unlock();
-                    lstart = System.currentTimeMillis();
-                    heap.free(block.ptr);
-                    lstop = System.currentTimeMillis();
-                    freeTime += lstop - lstart;
-                    allocated -= block.size;
-                } else {
-                    lock.unlock();
-                }
-                //if (Math.abs(ThreadLocalRandom.current().nextInt() % 100000) == 0) System.out.println((maxSize - allocated));
-                if (count % 256_000 == 0)
-                    System.out.println((maxSize - allocated));
-            }
-            long stop = System.currentTimeMillis();
-            System.out.println("\nfree memory: " + (maxSize - allocated));
-            System.out.println("malloc time: " + (allocTime) + " free time: " + freeTime);
-            System.out.println("total time: " + (allocTime + freeTime) + " count: " + count);
-            return allocTime;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            //Heap.closeLog();
-        }
-        return 0;
-    }
 
     public static void getBytes(int ptr, byte[] bytes) {
-        lock.lock();
-        long lstart = System.currentTimeMillis();
-        Iterator<Block> i = blocks.iterator();
-        while (i.hasNext())
-            if (i.next().ptr == ptr) i.remove();
-        allocTime -= (System.currentTimeMillis()-lstart);
-        lock.unlock();
+        for (MakeTest t:runnables)
+            t.heapTest.getBytes(ptr, bytes);
     }
 
     public static void setBytes(int ptr, byte[] bytes) {
-        //System.arraycopy(bytes, 0, this.bytes, ptr, size);
+        for (MakeTest t:runnables)
+            t.heapTest.setBytes(ptr, bytes);
     }
 
-    public static void main(String[] args) throws InvalidPointerException {
-//        long time = 0;
-//        for (int i=0; i<10; i++)
-//            time += mainTest();
-//        System.out.println("******* result="+(time/10));
-        mainTest(true);
+    final static int maxSize = 1_000_000_000;
+    final static int threadsCount = 4;
+    final static int threadMaxSize = maxSize / threadsCount;
+
+    final static Thread[] threads = new Thread[threadsCount];
+    final static MakeTest[] runnables = new MakeTest[threadsCount];
+
+    static class MakeTest implements Runnable {
+        HeapTest1 heapTest;
+        HeapInterface heap;
+
+        public MakeTest(HeapTest1 heapTest, HeapInterface heap) {
+            this.heapTest = heapTest;
+            this.heap = heap;
+        }
+
+        @Override
+        public void run() {
+            heapTest.mainTest(heap);
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+
+        final HeapInterface heap = new Heap(maxSize); //Heap_initial_hashTable,Heap
+
+        for(int i=0; i<threadsCount; i++) {
+            runnables[i] = new MakeTest(new HeapTest1(threadMaxSize), heap);
+            threads[i] = new Thread(runnables[i]);
+            threads[i].start();
+        }
+        long start = System.currentTimeMillis();
+        int maxSize=0;
+        int allocated=0;
+        int allocTime=0;
+        int freeTime=0;
+        int count = 0;
+        for (int i=0; i<threadsCount; i++) {
+            threads[i].join();
+            HeapTest1 t = runnables[i].heapTest;
+            maxSize+=t.maxSize;
+            allocated+=t.allocated;
+            allocTime+=t.allocTime;
+            freeTime+=t.freeTime;
+            count+=t.count;
+        }
+        long stop = System.currentTimeMillis();
+        heap.dispose();
+        System.out.println("\nfree memory: " + (maxSize - allocated));
+        System.out.println("malloc time: " + (allocTime) + " free time: " + freeTime);
+        System.out.println("total time: " + (allocTime + freeTime) + " count: " + count);
+        System.out.println("passed time: " + (stop - start));
     }
 }
+

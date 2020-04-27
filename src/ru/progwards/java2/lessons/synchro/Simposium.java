@@ -161,8 +161,8 @@ public class Simposium {
                 } catch (InterruptedException e) {
                     break;
                 }
-                f1.setFree(true);
-                f2.setFree(true);
+                p.right.setFree(true);
+                p.left.setFree(true);
                 // 7. Наелся положи обе вилки, сначала правую, затем левую на стол. Думай до тех пока не проголодаешься.
                 try {
                     p.reflect();

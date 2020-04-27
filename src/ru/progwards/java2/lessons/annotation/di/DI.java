@@ -230,7 +230,7 @@ public class DI {
      */
     public static void main(String[] a) {
         //Account account = DI.of("Account");
-        DI.initialize("ru.progwards.java2.lessons.annotation"); // can be moved to static{} block
+        DI.initialize("ru.progwards.java2.lessons.annotation"); // can be removed to static{} block
         Account account = DI.of("Account", DI.args(String.class, String.class, Integer.class), DI.vals("id23", "Ivan", 23));
         account.setPin(3);
         System.out.println(account);
