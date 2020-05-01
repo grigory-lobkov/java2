@@ -112,7 +112,7 @@ public class HeapTest1 {
             long stop = System.currentTimeMillis();
             System.out.println(Thread.currentThread().getName()+"\nfree memory: " + (maxSize - allocated));
             System.out.println("malloc time: " + (allocTime) + " free time: " + freeTime);
-            System.out.println("total time: " + (allocTime + freeTime) + " count: " + count);
+            System.out.println("total time: " + (allocTime + freeTime) + " execsCount: " + count);
             return allocTime;
         } catch (Exception e) {
             e.printStackTrace();

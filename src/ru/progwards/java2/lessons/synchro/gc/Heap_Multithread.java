@@ -84,7 +84,7 @@ public class Heap_Multithread {
         }
         //emptiesMapByPtr.add(block);
         //main.synchro.gc.Heap.newEmpty(int,int)
-        //total:2073 self:1951 count:2129190
+        //total:2073 self:1951 execsCount:2129190
 
 //        lockEmptiesQueueByPtr.lock();
 //        try {
@@ -92,10 +92,10 @@ public class Heap_Multithread {
 //        } finally {
 //            lockEmptiesQueueByPtr.unlock();
 //        }
-        //total:111868 self:111868 count:2662887,
+        //total:111868 self:111868 execsCount:2662887,
 
         executors.submit(new AddEmptiesQueueByPtr(block));
-        //total:1733 self:1733 count:2658879,
+        //total:1733 self:1733 execsCount:2658879,
 
         return block;
     }
@@ -109,9 +109,9 @@ public class Heap_Multithread {
         }
         //emptiesMapByPtr.remove(block);
         //ru.progwards.java2.lessons.synchro.gc.Heap.pollEmpty(java.util.ArrayDeque)
-        //total:155487 self:155225 count:1773079
+        //total:155487 self:155225 execsCount:1773079
         executors.submit(new RemoveEmptiesQueueByPtr(block));
-        //total:838 self:838 count:2222346
+        //total:838 self:838 execsCount:2222346
 
         return block;
     }
@@ -189,7 +189,7 @@ public class Heap_Multithread {
         if (block == null) throw new InvalidPointerException();
         //objectsQueueByPtr.remove(block); // надо обнулять размер после pollObject
         //ru.progwards.java2.lessons.synchro.gc.Heap.pollObject(int)
-        //total:57096 self:56911 count:354990, -> total:69 self:69 count:354990,
+        //total:57096 self:56911 execsCount:354990, -> total:69 self:69 execsCount:354990,
 
         return block;
     }
@@ -275,60 +275,60 @@ public class Heap_Multithread {
 //no Defrag, no Compact
 /*
 malloc time: 11780 free time: 620
-total time: 12400 count: 1774762
+total time: 12400 execsCount: 1774762
 [
 ru.progwards.java2.lessons.synchro.gc.Heap(int)
-total:629 self:629 count:1,
+total:629 self:629 execsCount:1,
 ru.progwards.java2.lessons.synchro.gc.Heap.free(int)
-total:530 self:166 count:354428,
+total:530 self:166 execsCount:354428,
 ru.progwards.java2.lessons.synchro.gc.Heap.lambda$new$0(ru.progwards.java2.lessons.synchro.gc.Heap$MBlock)
-total:531 self:531 count:23439900,
+total:531 self:531 execsCount:23439900,
 ru.progwards.java2.lessons.synchro.gc.Heap.lambda$new$1(ru.progwards.java2.lessons.synchro.gc.Heap$MBlock)
-total:122 self:122 count:4258386,
+total:122 self:122 execsCount:4258386,
 ru.progwards.java2.lessons.synchro.gc.Heap.malloc(int)
-total:11395 self:1565 count:1774762,
+total:11395 self:1565 execsCount:1774762,
 ru.progwards.java2.lessons.synchro.gc.Heap.newEmpty(int,int)
-total:2073 self:1951 count:2129190,
+total:2073 self:1951 execsCount:2129190,
 ru.progwards.java2.lessons.synchro.gc.Heap.newObject(int,int)
-total:7852 self:7321 count:1774762,
+total:7852 self:7321 execsCount:1774762,
 ru.progwards.java2.lessons.synchro.gc.Heap.pollEmpty(java.util.ArrayDeque)
-total:204 self:204 count:1774762,
+total:204 self:204 execsCount:1774762,
 ru.progwards.java2.lessons.synchro.gc.Heap.pollObject(int)
-total:65 self:65 count:354428,
+total:65 self:65 execsCount:354428,
 ru.progwards.java2.lessons.synchro.gc.HeapTest.<clinit>()
-total:0 self:0 count:1,
+total:0 self:0 execsCount:1,
 ru.progwards.java2.lessons.synchro.gc.HeapTest.getRandomSize()
-total:45 self:45 count:1774762,
+total:45 self:45 execsCount:1774762,
 ru.progwards.java2.lessons.synchro.gc.HeapTest.main(java.lang.String[])
-total:13828 self:0 count:1,
+total:13828 self:0 execsCount:1,
 ru.progwards.java2.lessons.synchro.gc.HeapTest.mainTest(boolean)
-total:13828 self:1229 count:1]
+total:13828 self:1229 execsCount:1]
 */
 /*
 main.synchro.gc.Heap(int)
-total:611 self:611 count:1,
+total:611 self:611 execsCount:1,
 main.synchro.gc.Heap.defrag()
-total:0 self:0 count:1,
+total:0 self:0 execsCount:1,
 main.synchro.gc.Heap.free(int)
-total:1261 self:631 count:442245,
+total:1261 self:631 execsCount:442245,
 main.synchro.gc.Heap.malloc(int)
-total:7901 self:4461 count:2216634,
+total:7901 self:4461 execsCount:2216634,
 main.synchro.gc.Heap.newEmpty(int,int)
-total:1733 self:1733 count:2658879,
+total:1733 self:1733 execsCount:2658879,
 main.synchro.gc.Heap.newObject(int,int)
-total:1153 self:1153 count:2216633,
+total:1153 self:1153 execsCount:2216633,
 main.synchro.gc.Heap.pollEmpty(java.util.ArrayDeque)
-total:1021 self:1021 count:2216633,
+total:1021 self:1021 execsCount:2216633,
 main.synchro.gc.Heap.pollObject(int)
-total:163 self:163 count:442245,
+total:163 self:163 execsCount:442245,
 main.synchro.gc.Heap.removeEmpty(.synchro.gc.Heap$MBlock)
-total:0 self:0 count:2,
+total:0 self:0 execsCount:2,
 main.synchro.gc.HeapTest.<clinit>()
-total:0 self:0 count:1,
+total:0 self:0 execsCount:1,
 main.synchro.gc.HeapTest.getRandomSize()
-total:325 self:325 count:2216634,
+total:325 self:325 execsCount:2216634,
 main.synchro.gc.HeapTest.main(java.lang.String[])
-total:13776 self:0 count:1,
+total:13776 self:0 execsCount:1,
 main.synchro.gc.HeapTest.mainTest(boolean)
-total:13776 self:3575 count:1]
+total:13776 self:3575 execsCount:1]
 */

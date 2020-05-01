@@ -19,7 +19,7 @@ public class HeapTest {
             t.heapTest.setBytes(ptr, bytes);
     }
 
-    final static int maxSize = 1_000_000_000;
+    final static int maxSize = 1_0_000_000;
     final static int threadsCount = 4;
     final static int threadMaxSize = maxSize / threadsCount;
 
@@ -69,7 +69,7 @@ public class HeapTest {
         heap.dispose();
         System.out.println("\nfree memory: " + (maxSize - allocated));
         System.out.println("malloc time: " + (allocTime) + " free time: " + freeTime);
-        System.out.println("total time: " + (allocTime + freeTime) + " count: " + count);
+        System.out.println("total time: " + (allocTime + freeTime) + " execsCount: " + count);
         System.out.println("passed time: " + (stop - start));
     }
 }

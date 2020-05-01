@@ -442,6 +442,8 @@ public class Heap implements HeapInterface {
             while (!myInterrupted) {
                 //System.out.println("HeapService. defragToLimit. firstObject="+firstObject.ptr);
                 MBlock saveFirstObject = firstObject;
+                if(saveFirstObject==null)
+                    break;
 
                 MBlock emptyBlock = defragFromFirstObject(firstObject);
 
@@ -598,40 +600,40 @@ Compact(7)... lastByte=999991694 done(1)
 
 free memory: 271
 malloc time: 13315 free time: 3036
-total time: 16351 count: 3564159
+total time: 16351 execsCount: 3564159
 [
-main.synchro.gc.Heap(int)                             total:581    self:581    count:1         ns/exec:581000000,
-main.synchro.gc.Heap.compact()                        total:7514   self:2896   count:4         ns/exec:724000000,
-main.synchro.gc.Heap.defrag()                         total:1586   self:177    count:4         ns/exec:44250000,
-main.synchro.gc.Heap.free(int)                        total:2498   self:1480   count:1782050   ns/exec:830,
-main.synchro.gc.Heap.malloc(int)                      total:15024  self:3226   count:3564159   ns/exec:905,
-main.synchro.gc.Heap.moveObject(.synchro.gc.Heap$MBlock,int)total:4618   self:1549   count:1781888   ns/exec:869,
-main.synchro.gc.Heap.newEmpty(int,int)                total:595    self:595    count:1782050   ns/exec:333,
-main.synchro.gc.Heap.newObject(int,int)               total:963    self:963    count:3564159   ns/exec:270,
-main.synchro.gc.Heap.pollEmpty(java.util.ArrayDeque)  total:446    self:446    count:1556576   ns/exec:286,
-main.synchro.gc.Heap.pollObject(int)                  total:423    self:423    count:1782050   ns/exec:237,
-main.synchro.gc.Heap.removeEmpty(.synchro.gc.Heap$MBlock)total:740    self:740    count:30423     ns/exec:24323,
-main.synchro.gc.Heap.resizeEmpty(.synchro.gc.Heap$MBlock,int)total:669    self:669    count:30423     ns/exec:21989,
-main.synchro.gc.Heap.shrinkEmpty(java.util.ArrayDeque,int)total:1289   self:1289   count:2007583   ns/exec:642,
-main.synchro.gc.HeapTest.<clinit>()                   total:0      self:0      count:1         ns/exec:0,
-main.synchro.gc.HeapTest.getBytes(int,byte[])         total:3069   self:3069   count:1781888   ns/exec:1722,
-main.synchro.gc.HeapTest.getRandomSize()              total:410    self:410    count:3564159   ns/exec:115,
-main.synchro.gc.HeapTest.main(java.lang.String[])     total:23125  self:0      count:1         ns/exec:0,
-main.synchro.gc.HeapTest.mainTest(boolean)            total:23125  self:4612   count:1         ns/exec:4612000000]
+main.synchro.gc.Heap(int)                             total:581    self:581    execsCount:1         ns/exec:581000000,
+main.synchro.gc.Heap.compact()                        total:7514   self:2896   execsCount:4         ns/exec:724000000,
+main.synchro.gc.Heap.defrag()                         total:1586   self:177    execsCount:4         ns/exec:44250000,
+main.synchro.gc.Heap.free(int)                        total:2498   self:1480   execsCount:1782050   ns/exec:830,
+main.synchro.gc.Heap.malloc(int)                      total:15024  self:3226   execsCount:3564159   ns/exec:905,
+main.synchro.gc.Heap.moveObject(.synchro.gc.Heap$MBlock,int)total:4618   self:1549   execsCount:1781888   ns/exec:869,
+main.synchro.gc.Heap.newEmpty(int,int)                total:595    self:595    execsCount:1782050   ns/exec:333,
+main.synchro.gc.Heap.newObject(int,int)               total:963    self:963    execsCount:3564159   ns/exec:270,
+main.synchro.gc.Heap.pollEmpty(java.util.ArrayDeque)  total:446    self:446    execsCount:1556576   ns/exec:286,
+main.synchro.gc.Heap.pollObject(int)                  total:423    self:423    execsCount:1782050   ns/exec:237,
+main.synchro.gc.Heap.removeEmpty(.synchro.gc.Heap$MBlock)total:740    self:740    execsCount:30423     ns/exec:24323,
+main.synchro.gc.Heap.resizeEmpty(.synchro.gc.Heap$MBlock,int)total:669    self:669    execsCount:30423     ns/exec:21989,
+main.synchro.gc.Heap.shrinkEmpty(java.util.ArrayDeque,int)total:1289   self:1289   execsCount:2007583   ns/exec:642,
+main.synchro.gc.HeapTest.<clinit>()                   total:0      self:0      execsCount:1         ns/exec:0,
+main.synchro.gc.HeapTest.getBytes(int,byte[])         total:3069   self:3069   execsCount:1781888   ns/exec:1722,
+main.synchro.gc.HeapTest.getRandomSize()              total:410    self:410    execsCount:3564159   ns/exec:115,
+main.synchro.gc.HeapTest.main(java.lang.String[])     total:23125  self:0      execsCount:1         ns/exec:0,
+main.synchro.gc.HeapTest.mainTest(boolean)            total:23125  self:4612   execsCount:1         ns/exec:4612000000]
 */
 
 /*
 free memory: 0
 malloc time: 9214 free time: 5646
-total time: 14860 count: 879357
+total time: 14860 execsCount: 879357
 Thread-0
 free memory: 0
 malloc time: 10110 free time: 5539
-total time: 15649 count: 890109
+total time: 15649 execsCount: 890109
 Thread-1
 free memory: 0
 malloc time: 10303 free time: 5675
-total time: 15978 count: 897103
+total time: 15978 execsCount: 897103
 Defrag(225674)... done(225674)
 Compact(225674)... lastByte=999696229 done(1)
 Defrag(151)... done(151)
@@ -640,70 +642,70 @@ Compact(150)... lastByte=999696229 done(1)
 Thread-3
 free memory: 0
 malloc time: 49206 free time: 5843
-total time: 55049 count: 888065
+total time: 55049 execsCount: 888065
 
 free memory: 0
 malloc time: 78833 free time: 22703
-total time: 101536 count: 3554634
+total time: 101536 execsCount: 3554634
 passed time: 63637
 [
-Thread-0.Heap.free(int)                    total:769    self:552    count:445016    ns/exec:1240,
-Thread-0.Heap.malloc(int)                  total:2306   self:1624   count:890109    ns/exec:1824,
-Thread-0.Heap.newEmpty(.Heap$MBlock)total:217    self:217    count:445016    ns/exec:487,
-Thread-0.Heap.newObject(.Heap$MBlock)total:254    self:254    count:890109    ns/exec:285,
-Thread-0.Heap.pollEmpty(java.util.ArrayDeque)total:145    self:145    count:387964    ns/exec:373,
-Thread-0.Heap.shrinkEmpty(java.util.ArrayDeque,int)total:283    self:283    count:502145    ns/exec:563,
-Thread-1.Heap.free(int)                    total:682    self:476    count:448380    ns/exec:1061,
-Thread-1.Heap.malloc(int)                  total:2218   self:1463   count:897103    ns/exec:1630,
-Thread-1.Heap.newEmpty(.Heap$MBlock)total:206    self:206    count:448380    ns/exec:459,
-Thread-1.Heap.newObject(.Heap$MBlock)total:285    self:285    count:897103    ns/exec:317,
-Thread-1.Heap.pollEmpty(java.util.ArrayDeque)total:167    self:167    count:391669    ns/exec:426,
-Thread-1.Heap.shrinkEmpty(java.util.ArrayDeque,int)total:303    self:303    count:505434    ns/exec:599,
-Thread-2.Heap.free(int)                    total:1193   self:490    count:439304    ns/exec:1115,
-Thread-2.Heap.malloc(int)                  total:2317   self:1467   count:879357    ns/exec:1668,
-Thread-2.Heap.newEmpty(.Heap$MBlock)total:703    self:703    count:439304    ns/exec:1600,
-Thread-2.Heap.newObject(.Heap$MBlock)total:248    self:248    count:879357    ns/exec:282,
-Thread-2.Heap.pollEmpty(java.util.ArrayDeque)total:144    self:144    count:383995    ns/exec:375,
-Thread-2.Heap.shrinkEmpty(java.util.ArrayDeque,int)total:458    self:458    count:495362    ns/exec:924,
-Thread-3.Heap.compact()                    total:44986  self:1078   count:2         ns/exec:539000000,
-Thread-3.Heap.defrag()                     total:1556   self:62     count:3         ns/exec:20666666,
-Thread-3.Heap.free(int)                    total:753    self:523    count:444024    ns/exec:1177,
-Thread-3.Heap.malloc(int)                  total:48830  self:1479   count:888065    ns/exec:1665,
-Thread-3.Heap.moveObject(.Heap$MBlock,int)total:43908  self:3206   count:1776626   ns/exec:1804,
-Thread-3.Heap.newEmpty(.Heap$MBlock)total:230    self:230    count:444024    ns/exec:517,
-Thread-3.Heap.newObject(.Heap$MBlock)total:263    self:263    count:888065    ns/exec:296,
-Thread-3.Heap.pollEmpty(java.util.ArrayDeque)total:163    self:163    count:387220    ns/exec:420,
-Thread-3.Heap.resizeEmpty(.Heap$MBlock,.Heap$MBlock)total:1494   self:1494   count:35307     ns/exec:42314,
-Thread-3.Heap.shrinkEmpty(java.util.ArrayDeque,int)total:383    self:383    count:500845    ns/exec:764,
-Thread-3.HeapTest.getBytes(int,byte[])     total:39911  self:39911  count:1776626   ns/exec:22464,
-Thread-3.HeapTest.setBytes(int,byte[])     total:791    self:791    count:1776626   ns/exec:445,
-main.Heap(int)                             total:612    self:612    count:1         ns/exec:612000000,
-main.HeapTest.<clinit>()                   total:1      self:1      count:1         ns/exec:1000000,
-main.HeapTest.main(java.lang.String[])     total:64288  self:4608   count:1         ns/exec:4608000000]
+Thread-0.Heap.free(int)                    total:769    self:552    execsCount:445016    ns/exec:1240,
+Thread-0.Heap.malloc(int)                  total:2306   self:1624   execsCount:890109    ns/exec:1824,
+Thread-0.Heap.newEmpty(.Heap$MBlock)total:217    self:217    execsCount:445016    ns/exec:487,
+Thread-0.Heap.newObject(.Heap$MBlock)total:254    self:254    execsCount:890109    ns/exec:285,
+Thread-0.Heap.pollEmpty(java.util.ArrayDeque)total:145    self:145    execsCount:387964    ns/exec:373,
+Thread-0.Heap.shrinkEmpty(java.util.ArrayDeque,int)total:283    self:283    execsCount:502145    ns/exec:563,
+Thread-1.Heap.free(int)                    total:682    self:476    execsCount:448380    ns/exec:1061,
+Thread-1.Heap.malloc(int)                  total:2218   self:1463   execsCount:897103    ns/exec:1630,
+Thread-1.Heap.newEmpty(.Heap$MBlock)total:206    self:206    execsCount:448380    ns/exec:459,
+Thread-1.Heap.newObject(.Heap$MBlock)total:285    self:285    execsCount:897103    ns/exec:317,
+Thread-1.Heap.pollEmpty(java.util.ArrayDeque)total:167    self:167    execsCount:391669    ns/exec:426,
+Thread-1.Heap.shrinkEmpty(java.util.ArrayDeque,int)total:303    self:303    execsCount:505434    ns/exec:599,
+Thread-2.Heap.free(int)                    total:1193   self:490    execsCount:439304    ns/exec:1115,
+Thread-2.Heap.malloc(int)                  total:2317   self:1467   execsCount:879357    ns/exec:1668,
+Thread-2.Heap.newEmpty(.Heap$MBlock)total:703    self:703    execsCount:439304    ns/exec:1600,
+Thread-2.Heap.newObject(.Heap$MBlock)total:248    self:248    execsCount:879357    ns/exec:282,
+Thread-2.Heap.pollEmpty(java.util.ArrayDeque)total:144    self:144    execsCount:383995    ns/exec:375,
+Thread-2.Heap.shrinkEmpty(java.util.ArrayDeque,int)total:458    self:458    execsCount:495362    ns/exec:924,
+Thread-3.Heap.compact()                    total:44986  self:1078   execsCount:2         ns/exec:539000000,
+Thread-3.Heap.defrag()                     total:1556   self:62     execsCount:3         ns/exec:20666666,
+Thread-3.Heap.free(int)                    total:753    self:523    execsCount:444024    ns/exec:1177,
+Thread-3.Heap.malloc(int)                  total:48830  self:1479   execsCount:888065    ns/exec:1665,
+Thread-3.Heap.moveObject(.Heap$MBlock,int)total:43908  self:3206   execsCount:1776626   ns/exec:1804,
+Thread-3.Heap.newEmpty(.Heap$MBlock)total:230    self:230    execsCount:444024    ns/exec:517,
+Thread-3.Heap.newObject(.Heap$MBlock)total:263    self:263    execsCount:888065    ns/exec:296,
+Thread-3.Heap.pollEmpty(java.util.ArrayDeque)total:163    self:163    execsCount:387220    ns/exec:420,
+Thread-3.Heap.resizeEmpty(.Heap$MBlock,.Heap$MBlock)total:1494   self:1494   execsCount:35307     ns/exec:42314,
+Thread-3.Heap.shrinkEmpty(java.util.ArrayDeque,int)total:383    self:383    execsCount:500845    ns/exec:764,
+Thread-3.HeapTest.getBytes(int,byte[])     total:39911  self:39911  execsCount:1776626   ns/exec:22464,
+Thread-3.HeapTest.setBytes(int,byte[])     total:791    self:791    execsCount:1776626   ns/exec:445,
+main.Heap(int)                             total:612    self:612    execsCount:1         ns/exec:612000000,
+main.HeapTest.<clinit>()                   total:1      self:1      execsCount:1         ns/exec:1000000,
+main.HeapTest.main(java.lang.String[])     total:64288  self:4608   execsCount:1         ns/exec:4608000000]
 */
 /*
 free memory: 0
 malloc time: 10666 free time: 4654
-total time: 15320 count: 2658489
+total time: 15320 execsCount: 2658489
 passed time: 4373
 
 free memory: 0
 malloc time: 10879 free time: 5210
-total time: 16089 count: 2663612
+total time: 16089 execsCount: 2663612
 passed time: 4765
 
 free memory: 0
 malloc time: 10281 free time: 5002
-total time: 15283 count: 2669497
+total time: 15283 execsCount: 2669497
 passed time: 4448
 
 free memory: 0
 malloc time: 10512 free time: 4830
-total time: 15342 count: 2664938
+total time: 15342 execsCount: 2664938
 passed time: 4404
 
 free memory: 0
 malloc time: 9632 free time: 5114
-total time: 14746 count: 2654249
+total time: 14746 execsCount: 2654249
 passed time: 4241
 */

@@ -289,7 +289,7 @@ class StatisticInfo implements Comparable {
 
     @Override
     public String toString() {
-        return "\n" + rpad(sectionName,80) + "total:" + rpad(fullTime, 7) + "self:" + rpad(selfTime, 7) + "count:" + rpad(count,9) + " ns/exec:"+(1_000_000L*(long)selfTime/count);
+        return "\n" + rpad(sectionName,80) + "total:" + rpad(fullTime, 7) + "self:" + rpad(selfTime, 7) + "execsCount:" + rpad(count,9) + " ns/exec:"+(1_000_000L*(long)selfTime/count);
     }
 
     // для сортировки в TreeMap
