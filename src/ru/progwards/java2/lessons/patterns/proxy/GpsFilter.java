@@ -14,7 +14,7 @@ public enum GpsFilter {
     double sumV2; // Сумма квадратов в статистике
 
     final double LAST_WEIGHT = 0.5D; // вероятность последнего элемента
-    final double DECR_MULTIPLIER = Math.pow(LAST_WEIGHT, 1D/STAT_COUNT); // уменьшитель вероятности до LAST_WEIGHT
+    final double DECR_MULTIPLIER = Math.pow(LAST_WEIGHT, 1D / STAT_COUNT); // уменьшитель вероятности до LAST_WEIGHT
     final double ALL_WEIGHT = (STAT_COUNT + STAT_COUNT * LAST_WEIGHT) / 2D; // делить сумму скоростей надо на сумму всех вкладов вероятностей (всех весов)
 
     public void add(GPS gps) {
@@ -63,11 +63,12 @@ public enum GpsFilter {
 
         double expectedValue = sumV / ALL_WEIGHT; // Математическое ожидание
         double dispersion = sumV2 / ALL_WEIGHT - expectedValue * expectedValue; // Дисперсия
-        double delta = Math.sqrt(dispersion); // 3 sigma
+        double sigma3 = Math.sqrt(dispersion) * 3; // 3 sigma
 
         // вернем false, если переданная скорость не удовлетворяет правилу "3 sigma"
-        boolean result = speed > expectedValue - delta && speed < expectedValue + delta;
-        if(!result) System.out.println(speed*1_000_000_000 + " ["+(expectedValue - delta)*1_000_000_000+","+(expectedValue + delta)*1_000_000_000+"] = "+result);
+        boolean result = speed > expectedValue - sigma3 && speed < expectedValue + sigma3;
+        if (!result)
+            System.out.println(speed * 1_000_000_000 + " [" + (expectedValue - sigma3) * 1_000_000_000 + "," + (expectedValue + sigma3) * 1_000_000_000 + "] = " + result);
         gps.v = speed;
         return result;
     }
