@@ -35,17 +35,20 @@ public class IntComplexNumber implements ComplexNumber {
     public IntComplexNumber add(IntComplexNumber num1, IntComplexNumber num2) {
         return new IntComplexNumber(num1.a + num2.a, num1.b + num2.b);
     }
+
     // вычитание комплексных чисел по формуле: (a + bi) - (c + di) = (a - c) + (b - d)i
     @Override
     public IntComplexNumber sub(IntComplexNumber num1, IntComplexNumber num2) {
         return new IntComplexNumber(num1.a - num2.a, num1.b - num2.b);
     }
+
     // умножение комплексных чисел по формуле: (a + bi) * (c + di) = (a*c - b*d) + (b*c + a*d)i
     @Override
     public IntComplexNumber mul(IntComplexNumber num1, IntComplexNumber num2) {
         int a = num1.a, b = num1.b, c = num2.a, d = num2.b;
         return new IntComplexNumber(a * c - b * d, b * c + a * d);
     }
+
     // деление комплексных чисел по формуле:
     //(a + bi) / (c + di) = (a*c + b*d)/(c*c+d*d) + ((b*c - a*d)/(c*c+d*d))i
     @Override

@@ -68,209 +68,13 @@ import java.util.concurrent.locks.ReentrantLock;
  * где Heap;HeapTest - это класс, который надо проинспектировать.
  */
 
-public class Profiler implements ClassFileTransformer {
+public enum Profiler {
+    INSTANCE;
 
-    /**
-     * Profiler instance (singleton usage)
-     */
-    private static volatile Profiler profiler = null;
-
-    /**
-     * Get profiler instance (singleton usage)
-     *
-     * @return profiler instance
-     * @see Profiler#profiler
-     */
-    public static Profiler getInstance() {
-        if (profiler == null)
-            synchronized (Profiler.class) {
-                if (profiler == null)
-                    profiler = new Profiler("");
-            }
-        return profiler;
-    }
-
-    /**
-     * Launch "Premain" agent
-     *
-     * @param agentArgument   arguments string (package and classes, listed by ";")
-     * @param instrumentation
-     */
-    public static void premain(String agentArgument, Instrumentation instrumentation) {
-        profiler = new Profiler(agentArgument);
-        instrumentation.addTransformer(profiler);
-    }
-
-
-    /**
-     * Join separate threads calculations for methods
-     * <p>
-     * if ={@code false}, report will be:
-     * main@Sample.mul()      200  30  2
-     * Thread-1@Sample.mul()  250  50  2
-     * Thread-2@Sample.mul()  100  30  1
-     * <p>
-     * if ={@code true}, report would be:
-     * Sample.mul()   550  110  5
-     */
     final boolean joinThreadsInReport = true;
 
-    /**
-     * Excluded prefix paths to classes
-     * Very useful, when no arguments for profiler given
-     *
-     * @see Profiler#premain(String, Instrumentation)
-     */
-    private final List<String> excludedPaths = List.of("java/", "jdk/", "sun/", "com/intellij/");
-
-    String rootPkg = "";
-    String rootPath = "";
-    private final ClassPool classPool = ClassPool.getDefault();
-    private final HashSet<String> inspectedClasses = new HashSet<String>();
-    private final String currentPkg = Profiler.class.getPackageName();
-
-    /**
-     * Default constructor
-     *
-     * @param agentArgument [INSPECTED_PACKAGE][;INSPECTED_CLASS1[;INSPECTED_CLASS2[;...]]]
-     */
-    public Profiler(String agentArgument) {
-        if (agentArgument != null) {
-            String[] strParts = agentArgument.split(";");
-            rootPkg = strParts[0].trim();
-            rootPath = rootPkg.replace(".", "/");
-            for (int i = 1; i < strParts.length; i++)
-                inspectedClasses.add(strParts[i].trim());
-        }
-    }
-
-    /**
-     * Transforms the given class file and returns a new replacement class file.
-     *
-     * @param loader
-     * @param className
-     * @param classBeingRedefined
-     * @param protectionDomain
-     * @param classfileBuffer
-     * @return
-     * @throws IllegalClassFormatException
-     */
-    @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-            throws IllegalClassFormatException {
-        String currentPath = currentPkg.replace('.', '/');
-        if (className.startsWith(rootPath)) {
-            String shortName = className.substring(className.lastIndexOf("/") + 1);
-            boolean inspect = inspectedClasses.contains(shortName);
-            if (!inspect) {
-                inspect = inspectedClasses.isEmpty();
-                if (inspect) {
-                    for (String path : excludedPaths) {
-                        if (className.startsWith(path)) {
-                            inspect = false;
-                            break;
-                        }
-                    }
-                }
-                if (inspect) {
-                    if (className.startsWith(currentPath)) {
-                        inspect = !(className.equals(currentPath + "/SectionLink")
-                                || className.equals(currentPath + "/Section")
-                                || className.equals(currentPath + "/Profiler"));
-                    }
-                }
-            }
-            if (inspect)
-                try {
-                    String dottedClassName = className.replace('/', '.');
-                    return transformClass(dottedClassName, classBeingRedefined,
-                            classfileBuffer);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-        }
-        return null;
-    }
-
-    /**
-     * Transform class
-     * Add to class methods {@code enterSection()} and {@code exitSection()}
-     *
-     * @param className full name of class to transform
-     * @param classBeingRedefined
-     * @param classfileBuffer byte sequence of class definition
-     * @return
-     * @throws IOException
-     * @throws RuntimeException
-     * @throws CannotCompileException
-     */
-    private byte[] transformClass(final String className, final Class<?> classBeingRedefined, final byte[] classfileBuffer)
-            throws IOException, RuntimeException, CannotCompileException {
-
-        System.out.println("transformClass(" + className + ')');
-
-        CtClass clazz = null;
-
-        try {
-            clazz = classPool.makeClass(new ByteArrayInputStream(classfileBuffer));
-            if (!clazz.isInterface()) {
-                CtBehavior[] methods = clazz.getDeclaredBehaviors();
-                for (CtBehavior method : methods) {
-                    if (!method.isEmpty() && !Modifier.isNative(method.getModifiers())) {
-                        try {
-                            String secName = method.getLongName();
-                            //if(secName.contains(".lambda$")) continue;
-
-                            //System.out.println("transformMethod(" + secName + ')');
-
-                            method.insertBefore(String.format(currentPkg
-                                    + ".Profiler.getInstance().enterSection(\"%s\");", secName));
-                            method.insertAfter(String.format(currentPkg
-                                    + ".Profiler.getInstance().exitSection(\"%s\");", secName));
-                            if (method.getName().compareTo("main") == 0) {
-                                method.insertAfter(String.format(currentPkg
-                                        + ".Profiler.getInstance().printStatisticInfo(\"%s.stat\");", clazz.getSimpleName()));
-                            }
-                        } catch (Throwable t) {
-                            System.out.println("Error instrumenting " + className + "."
-                                    + method.getName());
-                            t.printStackTrace();
-                        }
-                    }
-                }
-                return clazz.toBytecode();
-            }
-        } finally {
-            if (clazz != null) {
-                clazz.detach();
-            }
-        }
-        return classfileBuffer;
-    }
-
-    /**
-     * Send all statistic info to system output
-     * @see Profiler#getSectionsInfo()
-     *
-     * @param className
-     */
-    public void printStatisticInfo(String className) {
+    public void printStatisticInfo() {
         System.out.println(getSectionsInfo());
-    }
-
-    /**
-     * Save all statistic to file
-     * @see Profiler#getSectionsInfo()
-     *
-     * @param className
-     */
-    public void printStatisticToFile(String className) {
-        //System.out.println("File: "+fileName);
-        try (FileWriter fileWriter = new FileWriter(className, true)) {
-            fileWriter.write(new Date().toString() + getSectionsInfo() + "\n\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     Hashtable<String, Section> sections = new Hashtable<String, Section>();
@@ -372,7 +176,7 @@ public class Profiler implements ClassFileTransformer {
         try {
             // if no need to join, then no need to work hard :)
             // если не нужно объединять потоки, не будем мудрствовать
-            if (!joinThreadsInReport) return sections.values().toString().replace(rootPkg, "");
+            if (!joinThreadsInReport) return sections.values().toString();
 
             // throw out thread names from section names, join same methods from different threads
             // отбросим имена потоков из имен секций, сохраним объединяя в Hashtable
@@ -452,27 +256,6 @@ public class Profiler implements ClassFileTransformer {
             maxCountLen++;
             maxMsLen++;
 
-            // deprecated. Column names included before values
-            // сформируем и выведем объединенную статистику
-            /*StringBuilder sb = new StringBuilder();
-            for (Section s : list) {
-                //sb.append("\n" + s.rpad(s.name, maxNameLen)
-                //        + "total:" + s.rpad(s.totalTime, maxTotalLen)
-                //        + "self:" + s.rpad(s.selfTime, maxSelfLen)
-                //        + "execsCount:" + s.rpad(s.execsCount, maxCountLen));
-                sb.append("\n" + s.rpad(s.name, maxNameLen)
-                        + "  total:" + s.lpad(s.totalTime, maxTotalLen)
-                        + "  self:" + s.lpad(s.selfTime, maxSelfLen)
-                        + "  execsCount:" + s.lpad(s.execsCount, maxCountLen));
-                if (s.execsCount >= calcEachOnCount)
-                    if (maxMsEach > 20000)
-                        sb.append("  ms/exec:" + (s.selfTime / s.execsCount));
-                    else if (maxMsEach > 20)
-                        sb.append("  mcs/exec:" + (1_000L * (long) s.selfTime / s.execsCount));
-                    else
-                        sb.append("  ns/exec:" + (1_000_000L * (long) s.selfTime / s.execsCount));
-            }*/
-
             // prepare header line
             // подготовим заголовок
 
@@ -515,20 +298,20 @@ public class Profiler implements ClassFileTransformer {
      * @throws InterruptedException when {@code sleep} will be interrupted
      */
     public static void main(String[] args) throws InterruptedException {
-        Profiler.getInstance().enterSection("s1");
+        Profiler.INSTANCE.enterSection("s1");
         Thread.sleep(100);
-        Profiler.getInstance().enterSection("s2");
+        Profiler.INSTANCE.enterSection("s2");
         Thread.sleep(200);
-        Profiler.getInstance().exitSection("s2");
-        Profiler.getInstance().enterSection("s2");
+        Profiler.INSTANCE.exitSection("s2");
+        Profiler.INSTANCE.enterSection("s2");
         Thread.sleep(200);
-        Profiler.getInstance().exitSection("s2");
-        Profiler.getInstance().enterSection("s2");
+        Profiler.INSTANCE.exitSection("s2");
+        Profiler.INSTANCE.enterSection("s2");
         Thread.sleep(200);
-        Profiler.getInstance().exitSection("s2");
+        Profiler.INSTANCE.exitSection("s2");
         Thread.sleep(100);
-        Profiler.getInstance().exitSection("s1");
-        System.out.println(Profiler.getInstance().getSectionsInfo());
+        Profiler.INSTANCE.exitSection("s1");
+        System.out.println(Profiler.INSTANCE.getSectionsInfo());
     }
 }
 
