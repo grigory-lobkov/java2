@@ -4,46 +4,64 @@ import java.security.*;
 import java.text.*;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.*;
 import java.util.regex.*;
-import java.util.stream.*;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 
 public class Solution {
 
-    // Complete the compareTriplets function below.
-    static List<Integer> compareTriplets(List<Integer> a, List<Integer> b) {
-        int ac = 0;
-        int bc = 0;
-        for(int i=0; i<a.size(); i++)
-            if(a.get(i)>b.get(i)) ac++;
-            else if(a.get(i)>b.get(i)) bc++;
-        return List.of(ac,bc);
+    // Complete the formingMagicSquare function below.
+    static int formingMagicSquare(int[][] s) {
+        int[][][] cmp = {
+                {{8, 1, 6}, {3, 5, 7}, {4, 9, 2}},
+                {{4, 3, 8}, {9, 5, 1}, {2, 7, 6}},
+                {{2, 9, 4}, {7, 5, 3}, {6, 1, 8}},
+                {{6, 7, 2}, {1, 5, 9}, {8, 3, 4}},
+                {{8, 3, 4}, {1, 5, 9}, {6, 7, 2}},
+                {{6, 1, 8}, {7, 5, 3}, {2, 9, 4}},
+                {{2, 7, 6}, {9, 5, 1}, {4, 3, 8}},
+                {{4, 9, 2}, {3, 5, 7}, {8, 1, 6}}};
+        int[] w = new int[cmp.length];
+        int minW = Integer.MAX_VALUE;
+        for (int i=0;i<cmp.length;i++) {
+            w[i] = getWeight(s,cmp[i]);
+            if(w[i]<minW)
+                minW = w[i];
+        }
+        return minW;
     }
 
+    private static int getWeight(int[][] s, int[][] c) {
+        int result = 0;
+        for(int i = 0; i<3; i++)
+            for(int k = 0; k<3; k++)
+                result+=s[i][k]>c[i][k]?s[i][k]-c[i][k]:c[i][k]-s[i][k];
+
+            return result;
+    }
+
+    private static final Scanner scanner = new Scanner(System.in);
+
     public static void main(String[] args) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
 
-        List<Integer> a = Stream.of(bufferedReader.readLine().replaceAll("\\s+$", "").split(" "))
-                .map(Integer::parseInt)
-                .collect(toList());
+        int[][] s = new int[3][3];
 
-        List<Integer> b = Stream.of(bufferedReader.readLine().replaceAll("\\s+$", "").split(" "))
-                .map(Integer::parseInt)
-                .collect(toList());
+        for (int i = 0; i < 3; i++) {
+            String[] sRowItems = scanner.nextLine().split(" ");
+            scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
 
-        List<Integer> result = compareTriplets(a, b);
+            for (int j = 0; j < 3; j++) {
+                int sItem = Integer.parseInt(sRowItems[j]);
+                s[i][j] = sItem;
+            }
+        }
 
-        bufferedWriter.write(
-                result.stream()
-                        .map(Object::toString)
-                        .collect(joining(" "))
-                        + "\n"
-        );
+        int result = formingMagicSquare(s);
 
-        bufferedReader.close();
+        bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+
         bufferedWriter.close();
+
+        scanner.close();
     }
 }

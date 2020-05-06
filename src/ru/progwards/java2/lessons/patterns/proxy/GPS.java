@@ -4,8 +4,7 @@ package ru.progwards.java2.lessons.patterns.proxy;
 public class GPS {
 
     static int nextId = 0;
-    int id = nextId++;
-
+    int id;
 
     public double lat; // широта
 
@@ -20,6 +19,9 @@ public class GPS {
         this.lat = lat;
         this.lon = lon;
         this.time = time;
+        synchronized (GPS.class) {
+            int id = nextId++;
+        }
     }
 
     @Override
