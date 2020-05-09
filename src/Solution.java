@@ -4,64 +4,67 @@ import java.security.*;
 import java.text.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.*;
 import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 public class Solution {
 
-    // Complete the formingMagicSquare function below.
-    static int formingMagicSquare(int[][] s) {
-        int[][][] cmp = {
-                {{8, 1, 6}, {3, 5, 7}, {4, 9, 2}},
-                {{4, 3, 8}, {9, 5, 1}, {2, 7, 6}},
-                {{2, 9, 4}, {7, 5, 3}, {6, 1, 8}},
-                {{6, 7, 2}, {1, 5, 9}, {8, 3, 4}},
-                {{8, 3, 4}, {1, 5, 9}, {6, 7, 2}},
-                {{6, 1, 8}, {7, 5, 3}, {2, 9, 4}},
-                {{2, 7, 6}, {9, 5, 1}, {4, 3, 8}},
-                {{4, 9, 2}, {3, 5, 7}, {8, 1, 6}}};
-        int[] w = new int[cmp.length];
-        int minW = Integer.MAX_VALUE;
-        for (int i=0;i<cmp.length;i++) {
-            w[i] = getWeight(s,cmp[i]);
-            if(w[i]<minW)
-                minW = w[i];
+    // Complete the matrixRotation function below.
+    static void matrixRotation(List<List<Integer>> matrix, int r) {
+        int h = matrix.size();
+        int w = matrix.get(0).size();
+
+        int[][] m = new int[h][w];
+        int i = 0;
+        for (List<Integer> row: matrix) {
+            int k = 0;
+            for(int e: row) {
+                m[i][k] = e;
+                k++;
+            }
+            i++;
         }
-        return minW;
+
+        //System.out.println(Arrays.deepToString(m).replace("],","],\n"));
+
+        int[][] m2 = new int[h][w];
+
+        int o = 0;
+        while(o<h/2 && o<w/2) {
+            int sqLen = (h - o*2) * 2 + (w - o*2) * 2 - 4;
+            int[] sq = new int[sqLen];
+            i = 0;
+            for (int j = o; j < w - o; j++) sq[i++] = m[o][j];
+            for (int j = o + 1; j < h - o; j++) sq[i++] = m[j][w - 1 - o];
+            for (int j = o + 1; j < w - o; j++) sq[i++] = m[h - 1 - o][w - 1 - j];
+            for (int j = o + 1; j < h - 1 - o; j++) sq[i++] = m[h - 1 - j][o];
+
+            int[] sq2 = new int[sqLen];
+            for (int j = 0; j < sqLen; j++) sq2[j] = sq[(j + r) % sqLen];
+            //System.out.println(Arrays.toString(sq));
+            //System.out.println(Arrays.toString(sq2));
+
+            i = 0;
+            for (int j = o; j < w-o; j++) m2[o][j] = sq2[i++];
+            for (int j = o+1; j < h-o; j++) m2[j][w - 1-o] = sq2[i++];
+            for (int j = o+1; j < w-o; j++) m2[h - 1-o][w - 1 - j] = sq2[i++];
+            for (int j = o+1; j < h - 1-o; j++) m2[h - 1 - j][o] = sq2[i++];
+            o++;
+        }
+
+        System.out.println(Arrays.deepToString(m2).replace("], ","\n").replace("[","").replace(",","").replace("]",""));
     }
-
-    private static int getWeight(int[][] s, int[][] c) {
-        int result = 0;
-        for(int i = 0; i<3; i++)
-            for(int k = 0; k<3; k++)
-                result+=s[i][k]>c[i][k]?s[i][k]-c[i][k]:c[i][k]-s[i][k];
-
-            return result;
-    }
-
-    private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) throws IOException {
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
-
-        int[][] s = new int[3][3];
-
-        for (int i = 0; i < 3; i++) {
-            String[] sRowItems = scanner.nextLine().split(" ");
-            scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
-
-            for (int j = 0; j < 3; j++) {
-                int sItem = Integer.parseInt(sRowItems[j]);
-                s[i][j] = sItem;
-            }
-        }
-
-        int result = formingMagicSquare(s);
-
-        bufferedWriter.write(String.valueOf(result));
-        bufferedWriter.newLine();
-
-        bufferedWriter.close();
-
-        scanner.close();
+        List<List<Integer>> matrix = List.of(
+                List.of(1, 2, 3, 4),
+                List.of(5, 6, 7, 8),
+                List.of(9, 10, 11, 12),
+                List.of(13, 14, 15, 16)
+        );
+        matrixRotation(matrix, 2);
     }
 }
