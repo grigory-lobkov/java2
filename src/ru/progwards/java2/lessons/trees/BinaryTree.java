@@ -6,7 +6,7 @@ public class BinaryTree<K extends Comparable<K>, V> {
     private static final String KEYEXIST = "Key already exist";
     private static final String KEYNOTEXIST = "Key not exist";
 
-    class TreeLeaf<K extends Comparable<K>, V> {
+    public class TreeLeaf<K extends Comparable<K>, V> {
         K key;
         V value;
         TreeLeaf parent;
