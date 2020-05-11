@@ -1,4 +1,4 @@
-package ru.progwards.java2.lessons.sort;
+package ru.progwards.java2.lessons.sort.simple;
 
 /**
  * Сортировка массива "Расческой"

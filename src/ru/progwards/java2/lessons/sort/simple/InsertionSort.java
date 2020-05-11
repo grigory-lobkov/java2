@@ -1,4 +1,4 @@
-package ru.progwards.java2.lessons.sort;
+package ru.progwards.java2.lessons.sort.simple;
 
 /**
  * Сортировка вставками
@@ -52,17 +52,17 @@ public class InsertionSort {
 
     public static <T extends Comparable<T>> void sort3(T[] a) {
 
-        for (int j = a.length - 1; j > 0; j--) {
+        for (int j = a.length - 1; j >= 0; j--) {
             T cur = a[j];
             int i = j + 1;
             while (i < a.length && a[i].compareTo(cur) < 0) {
                 //a[i + 1] = a[i];
                 i++;
             }
-            if (i + 3 < a.length && i - j - 2 > 0) {
-                System.arraycopy(a, j + 1, a, j, i - j - 2);
+            if (i - j - 1 > 0) {
+                System.arraycopy(a, j+1, a, j, i - j - 1);
+                a[i - 1] = cur;
             }
-            a[i - 1] = cur;
         }
     }
 
@@ -72,16 +72,49 @@ public class InsertionSort {
 
         final int l = a.length;
 
-        for (int j = l - 1; j > 0; j--) {
+        for (int j = l - 1; j >= 0; j--) {
             T cur = a[j];
             int i = j + 1;
-            while (i < l && a[i].compareTo(cur) < 0)
+            while (i < l && a[i].compareTo(cur) < 0) {
                 i++;
-            if (i + 3 < l && i - j - 2 > 0) {
-                System.arraycopy(a, j + 1, a, j, i - j - 2);
             }
-            a[i - 1] = cur;
+            if (i - j - 1 > 0) {
+                System.arraycopy(a, j+1, a, j, i - j - 1);
+                a[i - 1] = cur;
+            }
         }
+    }
+
+    // Находим позицию для нулевого элемента в отсортированном массиве
+
+    public static <T extends Comparable<T>> void sortZeroQuick(T[] a) {
+
+        int low = 2;
+        int high = a.length - 1;
+        T el = a[0];
+        if(high==0 || a[0].compareTo(a[1]) < 0) return;
+
+        while(low<high) {
+            int mid = (low + high) / 2;
+            int cmp = el.compareTo(a[mid]);
+            if (cmp > 0) {
+                low = mid + 1;
+            } else if (cmp < 0) {
+                high = mid - 1;
+            } else if (cmp == 0) {
+                low = mid;
+                high = mid;
+                break;
+            }
+        }
+        if(low<=high) {
+            int cmp = el.compareTo(a[low]);
+            if (cmp <= 0) low--;
+        } else if(low>high) {
+            low = high;
+        }
+        System.arraycopy(a, 1, a, 0, low);
+        a[low] = el;
     }
 
 }
