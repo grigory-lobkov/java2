@@ -57,10 +57,10 @@ public class SortTestStr {
 
         a = copy(org);
         long start = System.currentTimeMillis();
-        SelectionSort.sort2(a);
+        SelectionSort.sort(a);
         long sort3 = System.currentTimeMillis() - start;
 
-        System.out.println("selection sort3: " + sort3);
+        System.out.println("selection sort: " + sort3);
     }
 
     static void heap(String[] org) {
@@ -162,13 +162,13 @@ public class SortTestStr {
         String[] org = fill();
         System.out.println("size=" + org.length);
 
-//        selection(org);
-//        bubble(org);
-//        shaker(org);
+        selection(org);
+        bubble(org);
+        shaker(org);
         comb(org);
-//        insertion(org);
+        insertion(org);
         heap(org);
-        //tree(org);
+        tree(org);
 
         quick(org);
         shell(org);

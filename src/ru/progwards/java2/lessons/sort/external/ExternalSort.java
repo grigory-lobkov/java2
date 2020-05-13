@@ -66,7 +66,9 @@ public class ExternalSort<T extends Comparable> {
     // 10_000,  150 -> 199 s
     // 10_000,  100 -> 252 s
     // 10_000,   30 -> 240 s
-
+    // при этом одно ядро из четырех загружено полностью, а диск лишь на 30МБ/с из 1ТБ/с - перспективно для многопоточности.
+    // К сожалению, не знаю, как ещё снизить нагрузку на процессор
+    // Файлов много лучше не открывать, особенно для носителей с последовательным доступом, чтобы жесткий диск не молотил головками. Число файлов надо подбирать экспериментально.
 
     final String SORT_FILES_PREFIX = "C:\\TEMP\\sort"; // имена временных файлов начинаются с
     final String SORT_FILES_POSTFIX = ".txt";  // имена временных файлов заканчиваются на
@@ -92,6 +94,10 @@ public class ExternalSort<T extends Comparable> {
         this.mergeSorter = mergeSorter;
     }
 
+
+    /**
+     * Разбиение файла на много отсортированных файлов
+     */
     private void splitAndSort() {
         System.out.println("splitAndSort");
         Comparable[] data = new Comparable[MAX_BLOCK_SIZE];
@@ -119,6 +125,11 @@ public class ExternalSort<T extends Comparable> {
         }
     }
 
+    /**
+     * Отсортировать даные и сохранить в файл
+     *
+     * @param data
+     */
     private void sortAndSave(Comparable[] data) {
         oneBlockSorter.accept(data);
         String fileName = SORT_FILES_PREFIX+fileAddPrefix+sortFilesCount+SORT_FILES_POSTFIX;
@@ -134,9 +145,14 @@ public class ExternalSort<T extends Comparable> {
         sortFilesCount++;
     }
 
+    /**
+     * Проверка, можем ли мы делать окончательное слияние. Если нет - будем объединять пока не сможем
+     *
+     * @throws IOException
+     */
     private void checkMerge() throws IOException {
         while (sortFilesCount > MAX_FILES_COUNT) {
-            int step = Math.min(MAX_FILES_COUNT, (int)(((float) sortFilesCount / MAX_FILES_COUNT) + 0.9f));
+            int step = Math.min(MAX_FILES_COUNT, (sortFilesCount+MAX_FILES_COUNT-1) / MAX_FILES_COUNT);
             System.out.println("checkMerge(), sortFilesCount=" + sortFilesCount+", step="+step);
             int i = 0;
             int newFilesCount = 0;
@@ -159,7 +175,7 @@ public class ExternalSort<T extends Comparable> {
 
     /**
      * Вспомогательный класс для многопутевого слияния файлов
-     * Класс обеспечивает поток объектов {@code <T>} и их сортировку
+     * Класс обеспечивает поток объектов {@code <T>}
      */
     class mergeSource implements Comparable {
         String fileName;
@@ -254,6 +270,11 @@ public class ExternalSort<T extends Comparable> {
         resultWriter.close();
     }
 
+    /**
+     * Выполнить слияние всех оставшихся файлов
+     *
+     * @throws IOException
+     */
     private void merge() throws IOException {
         System.out.println("merge(), sortFilesCount="+sortFilesCount);
         String[] sourceFiles = new String[sortFilesCount];
@@ -262,6 +283,13 @@ public class ExternalSort<T extends Comparable> {
         mergeFiles(sourceFiles, outFileName);
     }
 
+    /**
+     * Отсортировать файл {@code inFileName} и сохранить как {@code outFileName}
+     *
+     * @param inFileName
+     * @param outFileName
+     * @throws IOException
+     */
     static void sort(String inFileName, String outFileName) throws IOException {
         Function<String, Integer> lineToValue = str -> Integer.valueOf(str);
         Function<Integer, String> valueToLine = val -> val.toString();

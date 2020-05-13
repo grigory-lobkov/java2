@@ -117,4 +117,23 @@ public class InsertionSort {
         a[low] = el;
     }
 
+
+    // Сортировка в указанных пределах
+
+    public static <T extends Comparable<T>> void sortInLimits(T[] a, int from, int to) {
+
+        final int l = to+1;
+
+        for (int j = to; j >= from; j--) {
+            T cur = a[j];
+            int i = j + 1;
+            while (i < l && a[i].compareTo(cur) < 0) {
+                i++;
+            }
+            if (i - j - 1 > 0) {
+                System.arraycopy(a, j+1, a, j, i - j - 1);
+                a[i - 1] = cur;
+            }
+        }
+    }
 }

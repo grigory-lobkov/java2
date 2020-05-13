@@ -9,9 +9,9 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SortTest {
-    static final int COUNT = 100_000;
+    public static final int COUNT = 100_000;
 
-    static void fill(Integer[] a) {
+    public static void fill(Integer[] a) {
         HashSet<Integer> set = new HashSet<>();
         for (int i = 0; i < a.length; i++) {
             int n;
@@ -27,7 +27,7 @@ public class SortTest {
         Arrays.fill(a, 1);
     }
 
-    static Integer[] copy(Integer[] src) {
+    public static Integer[] copy(Integer[] src) {
         Integer[] res = new Integer[src.length];
         for (int i = 0; i < src.length; i++)
             res[i] = src[i];
