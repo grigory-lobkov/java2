@@ -21,7 +21,7 @@ import java.util.concurrent.*;
 P.S. Рекомендую алгоритм слияния делать через очередь/стэк, аналогично tim sort, тогда процесс
 синхронизации потоков в момент слияния сильно упростится.
 */
-public class ThreadsInlineSort<T extends Comparable> {
+public class ThreadsInplaceSort<T extends Comparable> {
 
     final int FIRST_BLOCK_MAX_SIZE = 20_000_000/2; // Максимальный размер сегмента при первичном разбиении
     final int MAX_JOIN_SEGMENTS = 2; // Сколько сегментов одновременно мы можем объединять (только два)
@@ -32,9 +32,9 @@ public class ThreadsInlineSort<T extends Comparable> {
     final TriConsumer<Comparable[], Integer, Integer> oneBlockSorter;
     final TriConsumer<Comparable[], Integer, Integer> mergeSorter;
 
-    public ThreadsInlineSort(Comparable[] data,
-                             TriConsumer<Comparable[], Integer, Integer> oneBlockSorter,
-                             TriConsumer<Comparable[], Integer, Integer> mergeSorter) {
+    public ThreadsInplaceSort(Comparable[] data,
+                              TriConsumer<Comparable[], Integer, Integer> oneBlockSorter,
+                              TriConsumer<Comparable[], Integer, Integer> mergeSorter) {
         this.data = data;
         this.oneBlockSorter = oneBlockSorter;
         this.mergeSorter = mergeSorter;
@@ -202,7 +202,7 @@ public class ThreadsInlineSort<T extends Comparable> {
         TriConsumer<Comparable[], Integer, Integer> mergeSorter = (m,f,t) -> QuickSort.sortHoare(m, f, t);
         //TriConsumer<Comparable[], Integer, Integer> mergeSorter = (m,f,t) -> InsertionSort.sortInLimits(m, f, t);
 
-        ThreadsInlineSort<Integer> s = new ThreadsInlineSort(a, oneBlockSorter, mergeSorter);
+        ThreadsInplaceSort<Integer> s = new ThreadsInplaceSort(a, oneBlockSorter, mergeSorter);
         s.splitAndSort();
         s.checkMerge();
         s.merge();
