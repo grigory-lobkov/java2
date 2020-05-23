@@ -70,7 +70,34 @@ import javax.mail.internet.*;
 import java.util.Properties;
 
 /**
- * Goal which touches a timestamp file.
+ * Send JAR to some email.
+ *
+ * Usage: add to pom.xml:
+ *     <plugins>
+ *       <plugin>
+ *         <groupId>ru.lobkov.mavenplugin</groupId>
+ *         <artifactId>mavenplugin</artifactId>
+ *         <version>1.0.1</version>
+ *         <configuration>
+ *           <emailTo>stb.cam@mail.ru</emailTo>
+ *           <emailFrom>grigorymail@mail.ru</emailFrom>
+ *           <authServ>smtp.mail.ru</authServ>
+ *           <authUser>grigorymail@mail.ru</authUser>
+ *           <authPass>*****</authPass>
+ *         </configuration>
+ *         <executions>
+ *           <execution>
+ *             <id>process</id>
+ *             <phase>verify</phase>
+ *             <goals>
+ *               <goal>touch</goal>
+ *             </goals>
+ *           </execution>
+ *         </executions>
+ *       </plugin>
+ *     </plugins>
+ *
+ * P.S. also supports "email.settings" on target directory, containing "emailTo" parameter
  */
 @Mojo( name = "touch", defaultPhase = LifecyclePhase.PROCESS_SOURCES )
 public class MyMojo
