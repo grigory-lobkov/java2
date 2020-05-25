@@ -77,7 +77,7 @@ import java.util.Properties;
  *       < plugin>
  *         < groupId>ru.lobkov.mavenplugin</groupId>
  *         < artifactId>mavenplugin</artifactId>
- *         < version>1.0.1</version>
+ *         < version>1.0.2</version>
  *         < configuration>
  *           < emailTo>stb.cam@mail.ru</emailTo>
  *           < emailFrom>grigorymail@mail.ru</emailFrom>

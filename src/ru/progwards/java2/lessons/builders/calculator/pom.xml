@@ -80,6 +80,27 @@
                     </descriptorRefs>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>ru.lobkov.mavenplugin</groupId>
+                <artifactId>mavenplugin</artifactId>
+                <version>1.0.2</version>
+                <configuration>
+                    <emailTo>stb.cam@mail.ru</emailTo>
+                    <emailFrom>grigorymail@mail.ru</emailFrom>
+                    <authServ>smtp.mail.ru</authServ>
+                    <authUser>grigorymail@mail.ru</authUser>
+                    <authPass>*****</authPass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>touch</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
