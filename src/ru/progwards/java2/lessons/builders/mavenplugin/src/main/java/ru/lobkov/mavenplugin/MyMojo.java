@@ -98,7 +98,10 @@ import java.util.Properties;
  *     </plugins>
  *
  * P.S. also supports "email.settings" on target directory, containing "emailTo" parameter
+ *
+ * Problems: If {@code emailTo} is not valid, no error will happen. See TransportEvent
  */
+//
 @Mojo( name = "touch", defaultPhase = LifecyclePhase.PROCESS_SOURCES )
 public class MyMojo
     extends AbstractMojo {
@@ -180,7 +183,7 @@ public class MyMojo
             throw new MojoExecutionException("'email' parameter is not set");
 
         File pkgFile = new File(f, pkgName + '.' + pkgExt);
-        sendMail("stb.cam@mail.ru", pkgFile);
+        sendMail(emailTo, pkgFile);
     }
 
     private String getFileEmail(File cfgFile) {
@@ -234,9 +237,9 @@ public class MyMojo
                 messageBodyPart = new MimeBodyPart();
                 messageBodyPart.attachFile(pkgFile);
                 multipart.addBodyPart(messageBodyPart);
-                result += "package attached.";
+                result += "package "+pkgName+" attached.";
             } else {
-                result += "package was not attached - not found.";
+                result += "package "+pkgName+" was not attached - not found.";
             }
 
             message.setContent(multipart);
