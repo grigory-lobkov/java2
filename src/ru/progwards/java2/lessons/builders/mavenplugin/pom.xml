@@ -7,10 +7,10 @@
 
   <groupId>ru.lobkov.mavenplugin</groupId>
   <artifactId>mavenplugin</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <packaging>maven-plugin</packaging>
 
-  <name>mavenplugin Maven Plugin</name>
+  <name>mavenplugin Send JAR by email</name>
 
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
@@ -185,3 +185,4 @@
     </profile>
   </profiles>
 </project>
+

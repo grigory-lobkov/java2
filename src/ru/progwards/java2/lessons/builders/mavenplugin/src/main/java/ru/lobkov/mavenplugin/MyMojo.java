@@ -73,24 +73,24 @@ import java.util.Properties;
  * Send JAR to some email.
  *
  * Usage: add to pom.xml:
- *     <plugins>
- *       <plugin>
- *         <groupId>ru.lobkov.mavenplugin</groupId>
- *         <artifactId>mavenplugin</artifactId>
- *         <version>1.0.1</version>
- *         <configuration>
- *           <emailTo>stb.cam@mail.ru</emailTo>
- *           <emailFrom>grigorymail@mail.ru</emailFrom>
- *           <authServ>smtp.mail.ru</authServ>
- *           <authUser>grigorymail@mail.ru</authUser>
- *           <authPass>*****</authPass>
+ *     < plugins>
+ *       < plugin>
+ *         < groupId>ru.lobkov.mavenplugin</groupId>
+ *         < artifactId>mavenplugin</artifactId>
+ *         < version>1.0.1</version>
+ *         < configuration>
+ *           < emailTo>stb.cam@mail.ru</emailTo>
+ *           < emailFrom>grigorymail@mail.ru</emailFrom>
+ *           < authServ>smtp.mail.ru</authServ>
+ *           < authUser>grigorymail@mail.ru</authUser>
+ *           < authPass>*****</authPass>
  *         </configuration>
- *         <executions>
- *           <execution>
- *             <id>process</id>
- *             <phase>verify</phase>
- *             <goals>
- *               <goal>touch</goal>
+ *         < executions>
+ *           < execution>
+ *             < id>process</id>
+ *             < phase>verify</phase>
+ *             < goals>
+ *               < goal>touch</goal>
  *             </goals>
  *           </execution>
  *         </executions>
@@ -178,6 +178,7 @@ public class MyMojo
 
         if (emailTo == null || emailTo.isEmpty())
             throw new MojoExecutionException("'email' parameter is not set");
+
         File pkgFile = new File(f, pkgName + '.' + pkgExt);
         sendMail("stb.cam@mail.ru", pkgFile);
     }
@@ -247,4 +248,5 @@ public class MyMojo
             e.printStackTrace();
         }
     }
+
 }

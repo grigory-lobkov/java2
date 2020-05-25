@@ -1,5 +1,3 @@
-package ru.progwards.java2.lessons.builders.calculator.src.main.java;
-
 public class Calculator {
     private String expression;
     private int pos;

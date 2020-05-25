@@ -1,9 +1,6 @@
-package ru.progwards.java2.lessons.builders.calculator.src.test.java;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import ru.progwards.java2.lessons.builders.calculator.src.main.java.Calculator;
 
 import java.util.Arrays;
 import java.util.Collection;
